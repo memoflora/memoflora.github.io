@@ -8,4 +8,3 @@ title = 'First Post'
 This is **bold text**, and this is *emphasized* text.
 
 Visit my [LinkedIn](https://www.linkedin.com/in/fathmubina/) profile!
-

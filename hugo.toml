@@ -2,3 +2,7 @@ baseURL = 'https://fathmubina.github.io/'
 locale = 'en-us'
 title = 'Fathan Mubina'
 theme = 'nostyleplease'
+
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'
