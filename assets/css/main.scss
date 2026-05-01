@@ -52,11 +52,11 @@
 }
 
 @mixin dark-appearance {
-  @include theme(#000000, #ffffff, #000000, #b31d2f, #f78fe7, #2f3849); // modus-vivendi
+  @include theme(#000000, #ffffff, #000000, #b31d2f, #b31d2f, #2f3849); // modus-vivendi
 }
 
 @mixin light-appearance {
-  @include theme(#ffffff, #000000, #595959, #b31d2f, #8f0075, #dae5ec); // modus-operandi
+  @include theme(#ffffff, #000000, #595959, #b31d2f, #b31d2f, #dae5ec); // modus-operandi
 }
 
 body[a="dark"] { @include dark-appearance; }
@@ -108,7 +108,7 @@ ul {
 
 pre {
   padding: 1em;
-  overflow-x: auto; /* Fix pre content overflowing parent without scroll bar */
+  overflow-x: auto;
 }
 
 table { width: 100%; }
