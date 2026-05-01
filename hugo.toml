@@ -1,7 +1,11 @@
 baseURL = 'https://fathmubina.github.io/'
 locale = 'en-us'
 title = 'Fathan Mubina'
-theme = 'nostyleplease'
+
+[params]
+  [params.theme_config]
+    appearance = "light"
+    isShowFooter = false
 
 [caches]
   [caches.images]
