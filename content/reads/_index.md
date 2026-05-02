@@ -2,6 +2,16 @@
 title = "reads (WIP)"
 +++
 
+### Topics
+[takes](./takes) / [projects](./projects) / [cs](./cs) / [math](./math)
+
+---
+
+### Recents
+- [why i made this website (5/2/26)](./why)
+
+---
+
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla sit amet urna commodo, ornare est nec, luctus velit. Praesent vel volutpat lacus. Duis est dolor, porttitor ut elementum sit amet, tempor in mi. Donec in lectus sit amet turpis dapibus maximus. Ut vel iaculis leo. Integer at dignissim magna, finibus lobortis neque. Quisque sed urna in lectus sodales finibus.
 
 Donec finibus ligula ut aliquet scelerisque. Vestibulum molestie nulla nisl, in pulvinar orci commodo eu. Vivamus neque felis, auctor a dapibus sed, convallis ut sem. Nullam faucibus nisi sed tincidunt sollicitudin. Maecenas sollicitudin, elit rutrum tincidunt tempus, ipsum mauris tincidunt turpis, non accumsan tortor sem viverra augue. Ut vitae nibh nulla. Donec malesuada placerat odio, ut blandit ex vehicula et. Cras et nibh viverra, ornare dolor non, aliquet risus.
