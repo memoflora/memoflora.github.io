@@ -3,6 +3,7 @@ locale = 'en-us'
 title = 'Fathan Mubina'
 
 [params]
+  favicon = "/favicon.png"
   [params.theme_config]
     appearance = "light"
     isShowFooter = false

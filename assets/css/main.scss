@@ -1,5 +1,5 @@
 // -------------- THEME SWITCHER -------------- //
-@mixin theme($--bg-color, $--primary-text-color, $--secondary-text-color, $--link-color, $--visited-link-color, $--highlight) {
+@mixin theme($--bg-color, $--primary-text-color, $--secondary-text-color, $--link-color, $--visited-link-color, $--highlight, $--hr-color) {
   background-color: $--bg-color;
 
   color: $--primary-text-color;
@@ -49,14 +49,18 @@
   blockquote {
     border: thin solid $--primary-text-color;
   }
+
+  hr {
+    border-color: $--hr-color;
+  }
 }
 
 @mixin dark-appearance {
-  @include theme(#000000, #ffffff, #000000, #b31d2f, #b31d2f, #2f3849); // modus-vivendi
+  @include theme(#232220, #a7a195, #000000, #c12d3e, #c12d3e, #2f3849, #4d4a45); // modus-vivendi
 }
 
 @mixin light-appearance {
-  @include theme(#ffffff, #000000, #595959, #b31d2f, #b31d2f, #dae5ec); // modus-operandi
+  @include theme(#fefefe, #333230, #595959, #c12d3e, #c12d3e, #dae5ec, #e6e6e6); // modus-operandi
 }
 
 body[a="dark"] { @include dark-appearance; }
@@ -97,13 +101,22 @@ a {
   &:hover { text-decoration: underline; }
 }
 
+#theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  color: inherit;
+}
+
 hr {
   border: none;
-  border-top: 1px solid #e7e7e7;
+  border-top: 1px solid;
 }
 
 ul {
-  padding-left: 1.35rem;                             
+  padding-left: 1.1rem;                             
 }
 
 pre {

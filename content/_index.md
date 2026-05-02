@@ -2,8 +2,9 @@
 title = "about"
 +++
 
-punya fathan
+Hi! I'm Fathan—[CS](../reads/cs) and [Math](../reads/math) student at NUS.
 
 ---
 
-personal site :)
+- Read my stuff > [reads](../reads)
+- Drop me a message > [contact](../contact)
