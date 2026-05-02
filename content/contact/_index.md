@@ -6,3 +6,4 @@ title = "contact"
 - fathan at u dot nus dot edu
 - github.com/memoflora
 - linkedin.com/in/fathmubina
+
