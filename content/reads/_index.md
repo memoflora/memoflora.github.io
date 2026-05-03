@@ -3,12 +3,15 @@ title = "reads (WIP)"
 +++
 
 ### topics
-[takes](./takes) / [projects](./projects) / [cs](./cs) / [math](./math)
+[takes](./takes) / 
+[projects](./projects) /
+[cs](./cs) / 
+[math](./math)
 
 ---
 
 ### recents
-- [why i made this website (may 2026)](./why)
+- [why i made this site (may 2026)](./why)
 
 ---
 
