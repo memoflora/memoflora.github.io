@@ -1,0 +1,7 @@
+{{ define "main" }}
+{{ if and .Parent (not .Parent.IsHome) }}
+<a class="back-link" href="{{ .Parent.RelPermalink }}"><</a>
+{{ end }}
+<h2 class="page-title">{{ .Title }}</h2>
+{{ .Content }}
+{{ end }}

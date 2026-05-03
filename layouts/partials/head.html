@@ -14,7 +14,7 @@
 
 
   <link rel="shortcut icon" type="image/x-icon" href="{{ $.Site.Params.favicon | relURL }}" />
-  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;550&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;550&family=Inconsolata:wdth,wght@50..200,200..900&display=swap" rel="stylesheet">
   {{ $options := (dict "outputStyle" "compressed" "enableSourceMap" (not hugo.IsProduction)) }}
   {{ $sass := resources.Get "css/main.scss" }}
   {{ $style := $sass | css.Sass $options | resources.Fingerprint "sha512" }}
