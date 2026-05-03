@@ -21,10 +21,6 @@
     border-bottom: 1px solid $--primary-text-color;
   }
 
-  pre {
-    background: $--bg-color;
-  }
-
   code:not(pre > code) {
     background-color: $--primary-text-color;
     color: $--bg-color;

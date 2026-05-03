@@ -8,6 +8,11 @@ title = 'Fathan Mubina'
     appearance = "light"
     isShowFooter = false
 
+[markup]
+  [markup.highlight]
+    style = "gruvbox"
+    noClasses = false
+
 [caches]
   [caches.images]
     dir = ':cacheDir/images'

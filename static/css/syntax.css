@@ -1,0 +1,73 @@
+/* gruvbox-material dark hard */
+
+.bg { color:#d4be98;background-color:#1d2021; }
+.chroma { color:#d4be98;background-color:#1d2021;-webkit-text-size-adjust:none; }
+.chroma .lnlinks { outline:none;text-decoration:none;color:inherit }
+.chroma .lntd { vertical-align:top;padding:0;margin:0;border:0; }
+.chroma .lntable { border-spacing:0;padding:0;margin:0;border:0; }
+.chroma .hl { background-color:#3c3836 }
+.chroma .lnt { white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7c6f64 }
+.chroma .ln { white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7c6f64 }
+.chroma .line { display:flex; }
+/* Keywords */
+.chroma .k { color:#e78a4e }
+.chroma .kc { color:#e78a4e }
+.chroma .kd { color:#e78a4e }
+.chroma .kn { color:#e78a4e }
+.chroma .kp { color:#e78a4e }
+.chroma .kr { color:#e78a4e }
+.chroma .kt { color:#d8a657 }
+/* Names */
+.chroma .na { color:#a9b665 }
+.chroma .no { color:#d3869b }
+.chroma .ni { color:#d8a657 }
+.chroma .ne { color:#ea6962 }
+.chroma .nl { color:#ea6962 }
+.chroma .nt { color:#ea6962 }
+.chroma .nb { color:#7daea3 }
+.chroma .bp { color:#7daea3 }
+.chroma .nf { color:#a9b665 }
+.chroma .fm { color:#a9b665 }
+/* Strings */
+.chroma .s { color:#a9b665 }
+.chroma .sa { color:#a9b665 }
+.chroma .sb { color:#a9b665 }
+.chroma .sc { color:#a9b665 }
+.chroma .dl { color:#a9b665 }
+.chroma .sd { color:#a9b665 }
+.chroma .s2 { color:#a9b665 }
+.chroma .se { color:#a9b665 }
+.chroma .sh { color:#a9b665 }
+.chroma .si { color:#a9b665 }
+.chroma .sx { color:#a9b665 }
+.chroma .sr { color:#a9b665 }
+.chroma .s1 { color:#a9b665 }
+.chroma .ss { color:#89b482 }
+/* Numbers */
+.chroma .m { color:#d3869b }
+.chroma .mb { color:#d3869b }
+.chroma .mf { color:#d3869b }
+.chroma .mh { color:#d3869b }
+.chroma .mi { color:#d3869b }
+.chroma .il { color:#d3869b }
+.chroma .mo { color:#d3869b }
+/* Operators */
+.chroma .o { color:#e78a4e }
+.chroma .ow { color:#e78a4e }
+/* Comments */
+.chroma .c { color:#928374;font-style:italic }
+.chroma .ch { color:#928374;font-style:italic }
+.chroma .cm { color:#928374;font-style:italic }
+.chroma .c1 { color:#928374;font-style:italic }
+.chroma .cs { color:#928374;font-style:italic }
+.chroma .cp { color:#89b482 }
+.chroma .cpf { color:#89b482;font-style:italic }
+/* Generic */
+.chroma .gd { color:#1d2021;background-color:#ea6962 }
+.chroma .ge { color:#7daea3;text-decoration:underline }
+.chroma .gr { background-color:#ea6962;font-weight:bold }
+.chroma .gh { color:#a9b665;font-weight:bold }
+.chroma .gi { color:#1d2021;background-color:#a9b665 }
+.chroma .go { color:#7c6f64 }
+.chroma .gu { color:#a9b665;font-weight:bold }
+.chroma .gt { background-color:#ea6962;font-weight:bold }
