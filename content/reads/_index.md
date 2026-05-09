@@ -4,7 +4,6 @@ title = "reads (WIP)"
 
 ### topics
 [takes](./takes) / 
-[projects](./projects) /
 [cs](./cs) / 
 [math](./math)
 
