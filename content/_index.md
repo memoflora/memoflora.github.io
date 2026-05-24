@@ -21,4 +21,5 @@ I've **previously** been a:
 - see what i've built > [projects](../projects)
 - read my stuff > [reads](../reads)
 - drop me a message > [contact](../contact)
+- draw something > [paint](../paint)
 
