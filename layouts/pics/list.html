@@ -1,0 +1,185 @@
+{{ define "main" }}
+<h2 class="page-title">{{ .Title }}</h2>
+
+<div class="justified-gallery"></div>
+
+<style>
+  .justified-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .jg-row {
+    display: flex;
+    gap: 4px;
+    overflow: hidden;
+  }
+
+  .jg-item {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .jg-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+</style>
+
+<script>
+  const photos = [
+    { src: "/pics/BersoreriaBGR7188.jpg", w: 3024, h: 2005 },
+    { src: "/pics/BersoreriaBGR7193.jpg", w: 2005, h: 3024 },
+    { src: "/pics/BersoreriaBGR7194.jpg", w: 3024, h: 2005 },
+    { src: "/pics/BersoreriaBGR7200.jpg", w: 2005, h: 3024 },
+    { src: "/pics/BersoreriaBGR7201.jpg", w: 2005, h: 3024 },
+    { src: "/pics/BersoreriaBGR7204.jpg", w: 3024, h: 2005 },
+    { src: "/pics/BersoreriaBGR7205.jpg", w: 3024, h: 2005 },
+    { src: "/pics/BersoreriaBGR7206.jpg", w: 3024, h: 2005 },
+    { src: "/pics/BersoreriaBGR7209.jpg", w: 3024, h: 2005 },
+    { src: "/pics/DSCF8640.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8665.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8706.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8709.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8764.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8765.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8766.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8767.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8768.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8769.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8773.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8774.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8778.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8779.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8780.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8782.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8785.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8789.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8800.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8802.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8803.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8804.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8805.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8806.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8807.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8808.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8809.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8813.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8814.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8815.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8816.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8817.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8818.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8819.JPG",          w: 4160, h: 6240 },
+    { src: "/pics/DSCF8820.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8821.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8826.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8835.JPG",          w: 6240, h: 4160 },
+    { src: "/pics/DSCF8837.JPG",          w: 6240, h: 4160 },
+  ];
+
+  const GAP = 4;
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function makeRow(rowPhotos, containerWidth, gap, pattern) {
+    const tagged = rowPhotos.map(p => ({ ...p, aspect: p.w / p.h }));
+    const aspectSum = tagged.reduce((s, p) => s + p.aspect, 0);
+    const totalGap = gap * (tagged.length - 1);
+    const rowHeight = (containerWidth - totalGap) / aspectSum;
+    return { photos: tagged, rowHeight, pattern };
+  }
+
+  // Greedy arrangement: always pick the most-available pattern that isn't the same as the last row.
+  // LP and PL are treated as distinct patterns, so:
+  //   LP→LP and PL→PL are blocked (portrait on same side twice in a row)
+  //   LP→PL and PL→LP are allowed (portrait alternates sides — the desired fallback)
+  // Falls back to repeating only when no other option exists.
+  function noRepeatArrange(rows) {
+    const groups = {};
+    for (const row of rows) {
+      (groups[row.pattern] = groups[row.pattern] || []).push(row);
+    }
+
+    const result = [];
+    let last = null;
+
+    while (result.length < rows.length) {
+      const candidates = Object.entries(groups)
+        .filter(([p, arr]) => arr.length > 0 && p !== last)
+        .sort((a, b) => b[1].length - a[1].length);
+
+      const [pattern, arr] = candidates.length
+        ? candidates[0]
+        : Object.entries(groups).find(([_, arr]) => arr.length > 0);
+
+      result.push(arr.pop());
+      last = pattern;
+    }
+
+    return result;
+  }
+
+  function buildRows(photos, containerWidth, gap) {
+    const portraits  = shuffle(photos.filter(p => p.h > p.w));
+    const landscapes = shuffle(photos.filter(p => p.w >= p.h));
+    const rows = [];
+
+    // pull out 2 or 3 landscapes to be solo full-width rows
+    const soloCount = Math.random() < 0.5 ? 2 : 3;
+    const solos = landscapes.splice(0, soloCount);
+    for (const s of solos) {
+      rows.push(makeRow([s], containerWidth, gap, "L"));
+    }
+
+    // every portrait is guaranteed a landscape partner
+    while (portraits.length && landscapes.length) {
+      if (Math.random() < 0.5) {
+        rows.push(makeRow([portraits.pop(), landscapes.pop()], containerWidth, gap, "PL"));
+      } else {
+        rows.push(makeRow([landscapes.pop(), portraits.pop()], containerWidth, gap, "LP"));
+      }
+    }
+
+    // remaining landscapes in pairs
+    while (landscapes.length) {
+      if (landscapes.length >= 2) {
+        rows.push(makeRow([landscapes.pop(), landscapes.pop()], containerWidth, gap, "LL"));
+      } else {
+        rows.push(makeRow([landscapes.pop()], containerWidth, gap, "LL"));
+      }
+    }
+
+    return noRepeatArrange(rows);
+  }
+
+  function render() {
+    const gallery = document.querySelector(".justified-gallery");
+    const containerWidth = gallery.offsetWidth;
+    const rows = buildRows(photos, containerWidth, GAP);
+
+    gallery.innerHTML = rows.map(({ photos: rowPhotos, rowHeight }) => {
+      const items = rowPhotos.map(p => `
+        <figure class="jg-item" style="flex: ${p.aspect}">
+          <img src="${p.src}" alt="" loading="lazy">
+        </figure>
+      `).join("");
+
+      return `<div class="jg-row" style="height: ${rowHeight}px">${items}</div>`;
+    }).join("");
+  }
+
+  render();
+</script>
+{{ end }}
