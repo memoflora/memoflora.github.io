@@ -120,12 +120,12 @@
         .filter(([p, arr]) => arr.length > 0 && p !== last)
         .sort((a, b) => b[1].length - a[1].length);
 
-      const [pattern, arr] = candidates.length
+      const picked = candidates.length
         ? candidates[0]
         : Object.entries(groups).find(([_, arr]) => arr.length > 0);
 
-      result.push(arr.pop());
-      last = pattern;
+      result.push(picked[1].pop());
+      last = picked[0];
     }
 
     return result;
