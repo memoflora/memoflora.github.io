@@ -22,5 +22,4 @@ I've **previously** been a:
 - read my stuff > [reads](../reads)
 - drop me a message > [contact](../contact)
 - see my pics > [pics](../pics)
-- draw something > [paint](../paint)
 
