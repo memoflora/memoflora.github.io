@@ -2,13 +2,12 @@
 title = "about"
 +++
 
-Hi! I'm Fathan—[CS](../reads/cs) and [Math](../reads/math) student at NUS.
+Hi! I'm Fathan—CS + Math undergraduate at NUS with interests in algorithms, distributed systems, and databases.
 
 ---
 
 I'm **currently**:
-- exploring my interests in computer science
-- building some projects in C++ and Go
+- building a storage engine in C++
 
 --- 
 
