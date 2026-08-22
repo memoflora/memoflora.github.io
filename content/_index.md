@@ -2,7 +2,7 @@
 title = "about"
 +++
 
-Hi! I'm Fathan—CS + Math undergraduate at NUS with interests in algorithms, distributed systems, and databases.
+Hi! I'm Fathan—CS + Math undergraduate at NUS with interests in algorithms, parallel computing, distributed systems, and databases.
 
 ---
 
