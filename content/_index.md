@@ -2,12 +2,14 @@
 title = "about"
 +++
 
-Hi! I'm Fathan—CS + Math undergraduate at NUS with interests in algorithms, parallel computing, distributed systems, and databases.
+Hi! I'm Fathan—CS + Math undergraduate at NUS with interests in systems, formal verification & algorithms.
 
 ---
 
 I'm **currently**:
-- building a storage engine in C++
+- a Software Engineer Intern at [Huawei](https://www.huawei.com/sg/)
+- building a time-series storage engine
+- learning formal verification through [Lean](https://lean-lang.org/)
 
 --- 
 
