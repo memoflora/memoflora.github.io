@@ -2,7 +2,7 @@
 title = "CS (WIP)"
 +++
 
-Here's a random sample code:
+Binary Exponentiation:
 ```cpp
 int binpow(int x, int y) {
     int res = 1;
