@@ -38,6 +38,8 @@ title = "Time-series storage engine"
 	- Section 4.1, the compression section
 	- The design goals list (in the introduction)
 
+---
+
 Sources:
 1. https://fabxc.org/tsdb/ | https://web.archive.org/web/20210803115658/https://fabxc.org/tsdb/
 2. https://ganeshvernekar.com/blog/prometheus-tsdb-the-head-block/ | https://ganeshvernekar.com/blog/prometheus-tsdb-wal-and-checkpoint/ | https://ganeshvernekar.com/blog/prometheus-tsdb-mmapping-head-chunks-from-disk/
