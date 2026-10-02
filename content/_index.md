@@ -9,7 +9,7 @@ Hi! I'm Fathan—CS + Math undergraduate at NUS with interests in systems, forma
 I'm **currently**:
 - interning at [Huawei](https://www.huawei.com/sg/) as a software engineer
 - building a time-series storage engine
-- learning formal verification through [Lean](https://lean-lang.org/)
+- learning formal verification with [Lean](https://lean-lang.org/)
 
 --- 
 
