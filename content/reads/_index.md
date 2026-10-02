@@ -1,5 +1,5 @@
 +++
-title = "reads (WIP)"
+title = "reads"
 +++
 
 ### topics
@@ -10,4 +10,5 @@ title = "reads (WIP)"
 ---
 
 ### recents
+- [Time-series storage engine (Oct 2026)](./cs/tsdb)
 - [Why I made this site (May 2026)](./why)
