@@ -42,5 +42,7 @@ title = "Time-series storage engine"
 
 Sources:
 1. https://fabxc.org/tsdb/ | https://web.archive.org/web/20210803115658/https://fabxc.org/tsdb/
-2. https://ganeshvernekar.com/blog/prometheus-tsdb-the-head-block/ | https://ganeshvernekar.com/blog/prometheus-tsdb-wal-and-checkpoint/ | https://ganeshvernekar.com/blog/prometheus-tsdb-mmapping-head-chunks-from-disk/
-3. https://www.vldb.org/pvldb/vol8/p1816-teller.pdf
+2. https://ganeshvernekar.com/blog/prometheus-tsdb-the-head-block/
+3. https://ganeshvernekar.com/blog/prometheus-tsdb-wal-and-checkpoint/
+4. https://ganeshvernekar.com/blog/prometheus-tsdb-mmapping-head-chunks-from-disk/
+5. https://www.vldb.org/pvldb/vol8/p1816-teller.pdf
