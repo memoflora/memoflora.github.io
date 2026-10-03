@@ -98,12 +98,9 @@ h3 { font-size: 1.3rem; }
 h4 { font-size: 1.2rem; }
 h5 { font-size: 1.1rem; }
 h6 { font-size: 1rem; }
-h2, h3, h4, h5, h6 { margin-top: 1.5rem; }
+h2, h3, h4, h5, h6 { margin-top: 1.5rem; }p { margin: 1rem 0; }
 
-h1, h2, h3, h4, h5, h6 { margin-bottom: 0.5rem; }
-p { margin: 1rem 0; }
-
-p:has(+ ul) { margin-bottom: 0; }
+:is(h1, h2, h3, h4, h5, h6, p):has(+ ul) { margin-bottom: 0; }
 
 li { margin: 0.4rem 0; }
 
@@ -117,8 +114,9 @@ hr {
   border-top: 1px solid;
 }
 
+:is(h1, h2, h3, h4, h5, h6, p) + ul { margin-top: 0; }
+
 ul {
-  margin-top: 0;
   padding-left: 0.3em;
   list-style-position: inside;
 }

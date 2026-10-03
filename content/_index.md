@@ -2,7 +2,7 @@
 title = "about"
 +++
 
-Hi! I'm Fathan—CS + Math undergraduate at NUS with interests in systems, formal methods & algorithms.
+Hi! I'm Fathan, CS + Math undergraduate at NUS. My interests lie in systems, formal methods & algorithms.
 
 ---
 
@@ -19,4 +19,4 @@ I've **previously** been a:
 
 ---
 
-- see my recent pics > [pics](../pics)
+- see my recent [projects](./projects/) & [pics](./pics)
