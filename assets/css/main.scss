@@ -85,7 +85,7 @@ html { height: 100%; }
 
 body {
   font-family: 'Work Sans';
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.4;
   margin: 0;
   min-height: 100%;
@@ -149,7 +149,8 @@ code {
 
 code:not(pre > code) {
   padding: 0.1em 0.2em;
-  font-size: 90%;
+  border-radius: 4px;
+  font-size: 105%;
 }
 
 code.has-jax {
