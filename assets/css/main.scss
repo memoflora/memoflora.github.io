@@ -22,8 +22,12 @@
   }
 
   code:not(pre > code) {
-    background-color: $--primary-text-color;
-    color: $--bg-color;
+    background-color: rgba($--primary-text-color, 0.06);
+    color: $--primary-text-color;
+  }
+
+  pre {
+    background-color: rgba($--primary-text-color, 0.06);
   }
 
   *:target {
@@ -90,10 +94,16 @@ body {
 
 h1 { font-size: 2rem; }
 h2 { font-size: 1.6rem; }
-
+h3 { font-size: 1.3rem; }
+h4 { font-size: 1.2rem; }
+h5 { font-size: 1.1rem; }
+h6 { font-size: 1rem; }
 h2, h3, h4, h5, h6 { margin-top: 1.5rem; }
 
+h1, h2, h3, h4, h5, h6 { margin-bottom: 0.5rem; }
 p { margin: 1rem 0; }
+
+p:has(+ ul) { margin-bottom: 0; }
 
 li { margin: 0.4rem 0; }
 
@@ -108,13 +118,20 @@ hr {
 }
 
 ul {
-  padding-left: 1.1rem;                             
+  margin-top: 0;
+  padding-left: 0.3em;
+  list-style-position: inside;
 }
 
 pre {
-  padding: 1em;
+  padding: 0.8em;
   overflow-x: auto;
   font-size: 1em;
+}
+
+li > pre {
+  margin: 0.4rem 0;
+  padding-top: 0;
 }
 
 table { width: 100%; }
