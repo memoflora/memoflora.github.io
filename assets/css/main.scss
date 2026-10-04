@@ -61,11 +61,11 @@
 }
 
 @mixin dark-appearance {
-  @include theme(#232220, #a7a195, #000000, #e73121, #e73121, #2f3849, #4d4a45); // modus-vivendi
+  @include theme(#232220, #a7a195, #000000, #e74a23, #e74a23, #2f3849, #4d4a45); // modus-vivendi
 }
 
 @mixin light-appearance {
-  @include theme(#fefefe, #333230, #595959, #e73121, #e73121, #dae5ec, #e6e6e6); // modus-operandi
+  @include theme(#fefefe, #333230, #595959, #e74a23, #e74a23, #dae5ec, #e6e6e6); // modus-operandi
 }
 
 body[a="dark"] { @include dark-appearance; }
