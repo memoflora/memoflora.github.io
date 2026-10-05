@@ -1,0 +1,17 @@
+{{- $id := .Get 0 -}}
+{{- $url := printf "https://open.spotify.com/album/%s" $id -}}
+{{- $api := printf "https://open.spotify.com/oembed?url=%s" ($url | urlquery) -}}
+{{- with try (resources.GetRemote $api) -}}
+  {{- with .Err -}}
+    {{- errorf "spotify-cover: %s" . -}}
+  {{- else with .Value -}}
+    {{- $meta := .Content | transform.Unmarshal -}}
+    {{- with try (resources.GetRemote $meta.thumbnail_url) -}}
+      {{- with .Err -}}
+        {{- errorf "spotify-cover: %s" . -}}
+      {{- else with .Value -}}
+        <a href="{{ $url }}"><img src="{{ .RelPermalink }}" alt="{{ $meta.title }}" title="{{ $meta.title }}" width="150" height="150" loading="lazy"></a>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
