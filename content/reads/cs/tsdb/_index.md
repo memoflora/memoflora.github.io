@@ -1,3 +1,7 @@
++++
+title = "Time-series storage engine"
++++
+
 ### Writing a Time Series Database from Scratch
 #### Time series data
 - Time series: identifier & stream of samples/data points as tuples `(timestamp: time, value: float64_t)`, e.g. `identifier -> (t0, v0), (t1, v1), (t2, v2), (t3, v3), ...`
@@ -59,6 +63,9 @@ series d:   | d1   |  | d2   |  | d3   |  | d4   |
 - Old data has to be deleted by removing it from the front of the files => write intensive & further write amplification.
 - Head chunk (not full) are held in memory => data loss if app crashes. Prevention by periodically checkpointing memory to disk => slow. Recovery from checkpoint is also slow.
 #### Series Churn
+- Series churn: inactive set of time series, i.e. receives no more data points
+- For example, performing a rolling update on microservices instances that generate the time series introduces series churn
+- This may happen frequently by systems like Kubernetes
 ```
 series
   ^
@@ -76,6 +83,8 @@ series
   v
     <-------------------- time --------------------->
 ```
+- Infrastructure remains constant while time series grows linearly
+- No issues on collecting data, but bad query performance
 ---
 ### Prometheus TSDB
 #### The Head Block
