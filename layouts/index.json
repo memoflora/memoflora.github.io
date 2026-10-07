@@ -1,0 +1,19 @@
+{{- /* Search index: one entry per page, plus one entry per heading. */ -}}
+{{- $entries := slice -}}
+{{- range where site.Pages "Kind" "in" (slice "home" "section" "page") -}}
+  {{- $page := . -}}
+  {{- $chunks := split (replaceRE `(<h[1-6] id=")` "@@SEC@@$1" .Content) "@@SEC@@" -}}
+  {{- range $i, $chunk := $chunks -}}
+    {{- if eq $i 0 -}}
+      {{- $text := $chunk | plainify | htmlUnescape | replaceRE `\s+` " " | strings.TrimSpace -}}
+      {{- $entries = $entries | append (dict "title" $page.Title "content" $text "url" $page.RelPermalink) -}}
+    {{- else -}}
+      {{- $m := index (findRESubmatch `(?s)^<h[1-6] id="([^"]*)"[^>]*>(.*?)</h[1-6]>(.*)$` $chunk 1) 0 -}}
+      {{- $heading := index $m 2 | plainify | htmlUnescape -}}
+      {{- $text := index $m 3 | plainify | htmlUnescape | replaceRE `\s+` " " | strings.TrimSpace -}}
+      {{- $url := printf "%s#%s" $page.RelPermalink (index $m 1) -}}
+      {{- $entries = $entries | append (dict "page" $page.Title "heading" $heading "content" $text "url" $url) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- $entries | jsonify -}}

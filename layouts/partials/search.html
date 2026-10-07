@@ -1,0 +1,8 @@
+<dialog id="search" data-index="{{ (site.Home.OutputFormats.Get "json").RelPermalink }}">
+    <input id="search-input" type="text" placeholder="Search" autocomplete="off" spellcheck="false" aria-label="Search" />
+    <ul id="search-results"></ul>
+</dialog>
+{{ $fuse := resources.Get "js/fuse.min.js" | resources.Fingerprint "sha512" }}
+{{ $search := resources.Get "js/search.js" | resources.Minify | resources.Fingerprint "sha512" }}
+<script defer src="{{ $fuse.RelPermalink }}" integrity="{{ $fuse.Data.Integrity }}"></script>
+<script defer src="{{ $search.RelPermalink }}" integrity="{{ $search.Data.Integrity }}"></script>

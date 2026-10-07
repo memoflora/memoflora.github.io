@@ -20,3 +20,4 @@ I've **previously** been a:
 ---
 
 - see my recent [projects](./projects/) & [pics](./pics)
+- [Cmd + K](#search) for fuzzy search

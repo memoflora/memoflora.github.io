@@ -2,6 +2,9 @@ baseURL = 'https://fathmubina.github.io/'
 locale = 'en-us'
 title = 'Fathan Mubina'
 
+[outputs]
+  home = ['html', 'json']
+
 [params]
   favicon = "/favicon.png"
   [params.theme_config]
