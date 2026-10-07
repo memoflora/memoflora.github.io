@@ -28,14 +28,11 @@ async function load() {
   });
 }
 
-// Returns the text around the longest match in the content.
+// Returns the text around the longest match in the content, or null if the content has no match.
 function snippet(entry, matches) {
-  const item = document.createElement("small");
   const match = (matches || []).find(m => m.key === "content");
-  if (!match) {
-    item.textContent = entry.content.slice(0, SNIPPET_BEFORE + SNIPPET_AFTER);
-    return item;
-  }
+  if (!match) return null;
+  const item = document.createElement("small");
   const [start, end] = match.indices.reduce((a, b) => (b[1] - b[0] > a[1] - a[0] ? b : a));
   const from = Math.max(0, start - SNIPPET_BEFORE);
   const mark = document.createElement("mark");
@@ -57,7 +54,8 @@ function render() {
     const title = document.createElement("span");
     title.textContent = item.heading ? `${item.page} / ${item.heading}` : item.title;
     a.append(title);
-    if (item.content) a.append(snippet(item, matches));
+    const text = snippet(item, matches);
+    if (text) a.append(text);
     a.addEventListener("click", () => dialog.close());
     li.addEventListener("mousemove", () => select(i));
     li.append(a);
@@ -75,10 +73,10 @@ function select(i) {
 
 function search() {
   const query = input.value.trim();
-  // With no query, show the list of pages.
+  // With no query, show the blogs.
   results = query
     ? fuse.search(query, { limit: MAX_RESULTS })
-    : entries.filter(e => !e.heading).map(item => ({ item }));
+    : entries.filter(e => e.post).map(item => ({ item }));
   selected = 0;
   render();
 }

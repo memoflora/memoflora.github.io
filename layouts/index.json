@@ -1,4 +1,5 @@
-{{- /* Search index: one entry per page, plus one entry per heading. */ -}}
+{{- /* Search index: one entry per page, plus one entry per heading.
+   Pages with "post": true are the blogs under /reads/. The search lists them before the user types. */ -}}
 {{- $entries := slice -}}
 {{- range where site.Pages "Kind" "in" (slice "home" "section" "page") -}}
   {{- $page := . -}}
@@ -6,7 +7,8 @@
   {{- range $i, $chunk := $chunks -}}
     {{- if eq $i 0 -}}
       {{- $text := $chunk | plainify | htmlUnescape | replaceRE `\s+` " " | strings.TrimSpace -}}
-      {{- $entries = $entries | append (dict "title" $page.Title "content" $text "url" $page.RelPermalink) -}}
+      {{- $post := and (eq $page.Kind "section") (not $page.Pages) (hasPrefix $page.RelPermalink "/reads/") -}}
+      {{- $entries = $entries | append (dict "title" $page.Title "content" $text "url" $page.RelPermalink "post" $post) -}}
     {{- else -}}
       {{- $m := index (findRESubmatch `(?s)^<h[1-6] id="([^"]*)"[^>]*>(.*?)</h[1-6]>(.*)$` $chunk 1) 0 -}}
       {{- $heading := index $m 2 | plainify | htmlUnescape -}}
