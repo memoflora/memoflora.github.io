@@ -1,0 +1,25 @@
+{{- $url := .Get 0 -}}
+{{- $m := findRESubmatch `/release/(\d+)` $url 1 -}}
+{{- if not $m }}{{ errorf "discogs-cover: no release id in %q" $url }}{{ end -}}
+{{- $id := index (index $m 0) 1 -}}
+{{- $link := printf "https://www.discogs.com/release/%s" $id -}}
+{{- $api := printf "https://api.discogs.com/releases/%s" $id -}}
+{{- $opts := dict "headers" (dict "User-Agent" "fathmubina-site/1.0 (https://fathmubina.com)") -}}
+{{- with try (resources.GetRemote $api $opts) -}}
+  {{- with .Err -}}
+    {{- errorf "discogs-cover %s: %s" $id . -}}
+  {{- else with .Value -}}
+    {{- $meta := .Content | transform.Unmarshal -}}
+    {{- with try (resources.GetRemote (index $meta.images 0).uri $opts) -}}
+      {{- with .Err -}}
+        {{- errorf "discogs-cover %s: %s" $id . -}}
+      {{- else with .Value -}}
+        <a href="{{ $link }}"><img src="{{ .RelPermalink }}" alt="{{ $meta.title }}" title="{{ $meta.title }}" width="150" height="150" loading="lazy"></a>
+      {{- else -}}
+        {{- errorf "discogs-cover %s: cover image request returned nothing" $id -}}
+      {{- end -}}
+    {{- end -}}
+  {{- else -}}
+    {{- errorf "discogs-cover %s: API request returned nothing" $id -}}
+  {{- end -}}
+{{- end -}}

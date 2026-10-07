@@ -1,0 +1,18 @@
+{{- $url := .Get 0 -}}
+{{- $opts := dict "headers" (dict "User-Agent" "Mozilla/5.0") -}}
+{{- with try (resources.GetRemote $url $opts) -}}
+  {{- with .Err -}}
+    {{- errorf "bandcamp-cover: %s" . -}}
+  {{- else with .Value -}}
+    {{- $html := .Content -}}
+    {{- $img := index (index (findRESubmatch `<meta property="og:image" content="([^"]+)"` $html 1) 0) 1 -}}
+    {{- $title := index (index (findRESubmatch `<meta property="og:title" content="([^"]+)"` $html 1) 0) 1 | htmlUnescape -}}
+    {{- with try (resources.GetRemote $img) -}}
+      {{- with .Err -}}
+        {{- errorf "bandcamp-cover: %s" . -}}
+      {{- else with .Value -}}
+        <a href="{{ $url }}"><img src="{{ .RelPermalink }}" alt="{{ $title }}" title="{{ $title }}" width="150" height="150" loading="lazy"></a>
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
