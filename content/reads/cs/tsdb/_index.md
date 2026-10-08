@@ -41,7 +41,7 @@ series d:   | d1   |  | d2   |  | d3   |  | d4   |
 - Batch writes => vertical sets of data. Querying data points for a series over a time window is slow, since we're reading from random pages.
 - Samples from same series should be stored sequentially => scanning with few reads.
 - Problem: fast write from data to disk & efficient layout for queries
-#### Prometheus's current storage
+#### Prometheus's (current) V2 storage
 - Create one file per time series that contains all of its samples in sequential order
 - Writing single samples is expensive => batch writing of 1KiB chunks of samples for a series in memory, then flush to files
 - Sample changes very little with previous sample => enables compression format
@@ -85,6 +85,48 @@ series
 ```
 - Infrastructure remains constant while time series grows linearly
 - No issues on collecting data, but bad query performance
+#### Prometheus's (current) V2 storage
+- Prometheus uses an index based on [LevelDB](https://github.com/google/leveldb), which allows querying series on a label pair
+- Combining results from different label selections, i.e. two or more predicates, has scalability problems
+#### Resource consumption
+- As chunks slowly piled up, memory consumption ramp up
+- Once completed, they are written to disk and evicted from memory => memory usage reaches a steady state
+- But until then, *series churn* increases memory usage every time scaling or rolling update is performed
+- Transition periods can last hours long & it's hard to estimate max resource needed
+- Single file per time series => single query can take up a Prometheus process
+- Querying data not cached in memory => files for queried series are opened & chunks of relevant data are read into memory
+- If data > memory, Prometheus is killed by kernel OOM killer ([SIGKILL](https://man7.org/linux/man-pages/man1/kill.1p.html))
+- Data can be evicted from memory after a query, but it's generally cached much longer for subsequent queries
+- Write amplification may still exist by having too small write batches & not aligning data precisely on page boundaries
+#### Prometheus's (new) V3 storage
+- The macro layout of the storage:
+```
+$ tree ./data
+./data
+├── b-000001
+│   ├── chunks
+│   │   ├── 000001
+│   │   ├── 000002
+│   │   └── 000003
+│   ├── index
+│   └── meta.json
+├── b-000004
+│   ├── chunks
+│   │   └── 000001
+│   ├── index
+│   └── meta.json
+├── b-000005
+│   ├── chunks
+│   │   └── 000001
+│   ├── index
+│   └── meta.json
+└── b-000006
+    ├── meta.json
+    └── wal
+        ├── 000001
+        ├── 000002
+        └── 000003
+```
 ---
 ### Prometheus TSDB
 #### The Head Block
