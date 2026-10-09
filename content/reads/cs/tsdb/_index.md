@@ -28,15 +28,15 @@ series
 - Batch writing larger chunks of data is needed. While SSDs are fast for random writes, they only write in pages of 4KiB—writing 16 byte is equivalent to full 4KiB—which is known as [write amplification](https://en.wikipedia.org/wiki/Write_amplification)
 - Querying pattern ≠ writing pattern. We can query a single data point from a significantly large number of series. 
 ```
-           +------+  +------+  +------+  +------+
-           | t1   |  | t2   |  | t3   |  | t4   |
-           |------|  |------|  |------|  |------|
-series a:   | a1   |  | a2   |  | a3   |  | a4   |
-series b:   | b1   |  | b2   |  | b3   |  | b4   |
-series c:   | c1   |  | c2   |  | c3   |  | c4   |
-series d:   | d1   |  | d2   |  | d3   |  | d4   |
-           +------+  +------+  +------+  +------+
-		   Batch 1   Batch 2   Batch 3   Batch 4
+         +------+------+------+------+
+         | t1   | t2   | t3   | t4   |
+         |------|------|------|------|
+series a | a1   | a2   | a3   | a4   |
+series b | b1   | b2   | b3   | b4   |
+series c | c1   | c2   | c3   | c4   |
+series d | d1   | d2   | d3   | d4   |
+         +------+------+------+------+
+          Batch1 Batch2 Batch3 Batch4
 ```
 - Batch writes => vertical sets of data. Querying data points for a series over a time window is slow, since we're reading from random pages.
 - Samples from same series should be stored sequentially => scanning with few reads.
@@ -110,7 +110,7 @@ $ tree ./data
 │   │   └── 000003
 │   ├── index
 │   └── meta.json
-├── b-000004
+├── b-000004s
 │   ├── chunks
 │   │   └── 000001
 │   ├── index
@@ -127,6 +127,39 @@ $ tree ./data
         ├── 000002
         └── 000003
 ```
+- Numbered blocks are prefixed with `b-`
+- Each block holds an index and chunks of data points of a series
+- Just like V2, this makes reading series over a time window cheap & allows compression, e.g. series: `1000, 1015, 1030`—only the first timestamp and difference are stored, using very few bits
+- Index files allow finding labels, their possible values, the entire series, and the chunks of a series
+#### Horizontal Partitioning
+- Partition the time space into non-overlapping blocks
+- Each block is a fully independent db of all time series for its time window
+```
+t0            t1             t2             t3             now
+ ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+ │           │  │           │  │           │  │           │                 ┌────────────┐
+ │           │  │           │  │           │  │  mutable  │ <─── write ──── ┤ Prometheus │
+ │           │  │           │  │           │  │           │                 └────────────┘
+ └───────────┘  └───────────┘  └───────────┘  └───────────┘                        ^
+       └──────────────┴───────┬──────┴──────────────┘                              │
+                              │                                                  query
+                              │                                                    │
+                            merge ─────────────────────────────────────────────────┘
+```
+- Every block is immutable except the currently written one
+- New data is written to in-memory db & temporary [WAL](https://en.wikipedia.org/wiki/Write-ahead_logging)
+- Fan out queries to relevant blocks => merge partial results from each block
+- Benefits:
+	- Ignore data blocks outside of the queried time range
+	- Complete a block by persisting data from in-memory db sequentially
+	- Recent chunks which are queried most are in memory
+	- No longer bounded by the fixed 1KiB chunk size
+	- Delete old data => delete a single directory
+#### mmap
+- Millions of small files => a few of large files, allows us to keep all files open
+- The open files can be mapped with [`mmap(2)`](https://man7.org/linux/man-pages/man2/mmap.2.html), a syscall that maps files into a process's virtual memory address space
+- `mmap`lets the OS manages the memory: it loads pages when a query reads them, drops pages if another program needs the RAM
+- Cache size is now adaptive => large query won't cause OOM kill anymore 
 ---
 ### Prometheus TSDB
 #### The Head Block
