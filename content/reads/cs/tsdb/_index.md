@@ -157,9 +157,9 @@ t0            t1             t2             t3             now
 	- Delete old data => delete a single directory
 #### mmap
 - Millions of small files => a few of large files, allows us to keep all files open
-- The open files can be mapped with [`mmap(2)`](https://man7.org/linux/man-pages/man2/mmap.2.html), a syscall that maps files into a process's virtual memory address space
-- `mmap`lets the OS manages the memory: it loads pages when a query reads them, drops pages if another program needs the RAM
-- Cache size is now adaptive => large query won't cause OOM kill anymore 
+- The open files can be mapped with [mmap(2)](https://man7.org/linux/man-pages/man2/mmap.2.html), a syscall that maps files into a process's virtual memory address space
+- `mmap` lets the OS manages the memory: it loads pages when a query reads them, drops pages if another program needs the RAM
+- Cache size is now adaptive => large query won't cause OOM kill anymore
 ---
 ### Prometheus TSDB
 #### The Head Block

@@ -147,6 +147,8 @@ ul {
   list-style-position: inside;
 }
 
+li > ul { padding-left: 1.5em; }
+
 pre {
   padding: 0.8em;
   overflow-x: auto;
