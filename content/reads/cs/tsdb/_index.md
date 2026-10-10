@@ -1,7 +1,3 @@
-+++
-title = "Time-series storage engine"
-+++
-
 ### Writing a Time Series Database from Scratch
 #### Time series data
 - Time series: identifier & stream of samples/data points as tuples `(timestamp: time, value: float64_t)`, e.g. `identifier -> (t0, v0), (t1, v1), (t2, v2), (t3, v3), ...`
@@ -133,7 +129,7 @@ $ tree ./data
 - Index files allow finding labels, their possible values, the entire series, and the chunks of a series
 #### Horizontal Partitioning
 - Partition the time space into non-overlapping blocks
-- Each block is a fully independent db of all time series for its time window
+- Each block is a fully independent DB of all time series for its time window
 ```
 t0            t1             t2             t3             now
  ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
@@ -147,11 +143,11 @@ t0            t1             t2             t3             now
                             merge ─────────────────────────────────────────────────┘
 ```
 - Every block is immutable except the currently written one
-- New data is written to in-memory db & temporary [WAL](https://en.wikipedia.org/wiki/Write-ahead_logging)
+- New data is written to in-memory DB & temporary [WAL](https://en.wikipedia.org/wiki/Write-ahead_logging)
 - Fan out queries to relevant blocks => merge partial results from each block
 - Benefits:
 	- Ignore data blocks outside of the queried time range
-	- Complete a block by persisting data from in-memory db sequentially
+	- Complete a block by persisting data from in-memory DB sequentially
 	- Recent chunks which are queried most are in memory
 	- No longer bounded by the fixed 1KiB chunk size
 	- Delete old data => delete a single directory
@@ -160,6 +156,40 @@ t0            t1             t2             t3             now
 - The open files can be mapped with [mmap(2)](https://man7.org/linux/man-pages/man2/mmap.2.html), a syscall that maps files into a process's virtual memory address space
 - `mmap` lets the OS manages the memory: it loads pages when a query reads them, drops pages if another program needs the RAM
 - Cache size is now adaptive => large query won't cause OOM kill anymore
+#### Compaction
+- Periodically: cut a new head block => persist the completed block to disk => delete its WAL
+- Keep each block short (typically 2 hrs) => avoids having too much data in memory
+- Querying multiple blocks => merge partial results, costly for long query
+- Compaction: combining blocks into a potentially larger block
+- Side effect: dropping deleted data, restructuring chunks for improved query performance
+```
+t0             t1            t2             t3             t4             now
+ ┌────────────┐  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+ │ 1          │  │ 2        │  │ 3         │  │ 4         │  │ 5 mutable │    before
+ └────────────┘  └──────────┘  └───────────┘  └───────────┘  └───────────┘
+ ┌─────────────────────────────────────────┐  ┌───────────┐  ┌───────────┐
+ │ 1              compacted                │  │ 4         │  │ 5 mutable │    after (option A)
+ └─────────────────────────────────────────┘  └───────────┘  └───────────┘
+ ┌──────────────────────────┐  ┌──────────────────────────┐  ┌───────────┐
+ │ 1       compacted        │  │ 3      compacted         │  │ 5 mutable │    after (option B)
+ └──────────────────────────┘  └──────────────────────────┘  └───────────┘
+```
+- `[1,2,3,4]` can be compacted to `[1,4]` or `[1,3]` => reduces merging cost
+#### Rentention
+- 
+```
+                      |
+ ┌────────────┐  ┌────┼─────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+ │ 1          │  │ 2  |     │  │ 3         │  │ 4         │  │ 5         │   . . .
+ └────────────┘  └────┼─────┘  └───────────┘  └───────────┘  └───────────┘
+                      |
+                      |
+             retention boundary
+```
+- Older data => larger blocks, as we keep compacting previously compacted blocks
+- Upper limit => blocks don't span the entire DB & limits disk overhead of blocks that are partially inside & outside of retention window, i.e. block 2 above
+- Max block size at 10% retention window => disk overhead is bounded by 10%
+- Retention deletion goes from very costly to practically free
 ---
 ### Prometheus TSDB
 #### The Head Block
