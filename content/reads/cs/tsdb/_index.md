@@ -190,6 +190,38 @@ t0             t1            t2             t3             t4             now
 - Upper limit => blocks don't span the entire DB & limits disk overhead of blocks that are partially inside & outside of retention window, i.e. block 2 above
 - Max block size at 10% retention window => disk overhead is bounded by 10%
 - Retention deletion goes from very costly to practically free
+#### Indexes
+- Block-based layout reduces the number of series to be considered when querying
+- It only reduces by a constant factor: *O(n)* => *O(n/c)* ~ *O(n)*
+- It's significantly faster in most queries, except queries spanning the full time range
+- [Inverted index](https://en.wikipedia.org/wiki/Inverted_index): `index[app="nginx"] = [10,29,9]`, series IDs that have a label `app="nginx"`
+- If n = number of series, m = result size for a given query => time complexity of the query using inverted index is *O(m)*, where m is generally significantly smaller
+- Things become problematic with more complex queries, i.e. combined labels
+#### Combining Labels
+- `__name__="requests_total" AND app="foo"`: take the inverted index list for each and intersect them
+- Each input list has worst case size *O(n)* => taking the intersection takes *O(n^2)*
+- Adding more labels increases the exponent to *O(n^3), O(n^4), ..., O(n^k)*
+```
+__name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 2000003 ]
+     app="foo"              ->   [ 1, 3, 10, 11, 12, 100, 311, 320, 1000, 1001, 10002 ]
+             intersection   =>   [ 1000, 1001 ]
+```
+- Sorted inverted indexes => scanning both lists takes *O(2n) ~ O(n)*
+- For k lists, it now takes *O(nk)* instead of *O(n^k)*
+- This is a simplified version of canonical search index used by [search engines](https://en.wikipedia.org/wiki/Search_engine_indexing#Inverted_indices)
+- Keeping IDs sorted is non-trivial, e.g. V2 assigns hashes as IDs to new series
+- Another problem: modifying indexes on disk as data gets deleted or updated
+- Approach: simply recompute and rewrite them while keeping the DB queryable and consistent
+- V3 does this by having separate immutable index per block, only modified via rewrite on compaction
+- Only indexes for mutable blocks are held in memory to be updated
+#### Benchmarking
+![Heap memory usage in GB](heap_usage.png)
+![CPU usage in cores/second](cpu_usage.png)
+![Disk writes in MB/second](disk_writes.png)
+![Disk size in GB](disk_usage.png)
+![99th percentile query latency in seconds](query_latency.png)
+![Ingested samples/second](ingestion_rate.png)
+- In most graphs, there's a spike in Prometheus 1.5 which aligns with the retention boundary at 6 hrs
 ---
 ### Prometheus TSDB
 #### The Head Block

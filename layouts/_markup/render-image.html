@@ -1,0 +1,8 @@
+{{- $src := .Destination -}}
+{{- with .PageInner.Resources.Get .Destination }}{{ $src = .RelPermalink }}{{ end -}}
+<figure>
+  <img src="{{ $src }}" alt="{{ .PlainText }}"{{ with .Title }} title="{{ . }}"{{ end }} loading="lazy">
+  {{- with .PlainText }}
+  <figcaption>{{ . }}</figcaption>
+  {{- end }}
+</figure>
