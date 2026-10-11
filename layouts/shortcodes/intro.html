@@ -1,4 +1,7 @@
 <div class="intro">
-    <img src="{{ site.Params.favicon | relURL }}" alt="{{ site.Title }}" width="80" height="80">
+    <button id="theme-toggle" type="button" aria-label="Toggle light and dark mode" title="Toggle light/dark mode">
+        <img class="pfp-light" src="/profile-light.png" alt="{{ site.Title }}" width="80" height="80">
+        <img class="pfp-dark" src="/profile-dark.png" alt="" width="80" height="80">
+    </button>
     <p>{{ .Inner | markdownify }}</p>
 </div>

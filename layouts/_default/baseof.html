@@ -2,6 +2,12 @@
 <html lang="{{ $.Site.LanguageCode }}">
     {{- partial "head.html" . -}}
     <body a="{{ $.Site.Params.theme_config.appearance | default "auto" }}">
+        <script>
+            try {
+                var t = localStorage.getItem("theme");
+                if (t === "dark" || t === "light") document.body.setAttribute("a", t);
+            } catch (e) {}
+        </script>
         {{- partial "navbar.html" . -}}
         <main class="page-content" aria-label="Content"> 
             <div class="w">
@@ -10,5 +16,7 @@
             </div>
         </main>
         {{- partial "search.html" . -}}
+        {{ $theme := resources.Get "js/theme.js" | resources.Minify | resources.Fingerprint "sha512" }}
+        <script defer src="{{ $theme.RelPermalink }}" integrity="{{ $theme.Data.Integrity }}"></script>
     </body>
 </html>
