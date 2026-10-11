@@ -7,22 +7,22 @@
 ```
 series
   ^   
-  │   . . . . . . . . . . . . . . . . .   . . . . .   {__name__="request_total", method="GET"}
-  │     . . . . . . . . . . . . . . . . . . . . . .   {__name__="request_total", method="POST"}
-  │         . . . . . . .
-  │       . . .     . . . . . . . . . . . . . . . .                  ... 
-  │     . . . . . . . . . . . . . . . . .   . . . .   
-  │     . . . . . . . . . .   . . . . . . . . . . .   {__name__="errors_total", method="POST"}
-  │           . . .   . . . . . . . . .   . . . . .   {__name__="errors_total", method="GET"}
-  │         . . . . . . . . .       . . . . .
-  │       . . .     . . . . . . . . . . . . . . . .                  ... 
-  │     . . . . . . . . . . . . . . . .   . . . . 
+  |   . . . . . . . . . . . . . . . . .   . . . . .   {__name__="request_total", method="GET"}
+  |     . . . . . . . . . . . . . . . . . . . . . .   {__name__="request_total", method="POST"}
+  |         . . . . . . .
+  |       . . .     . . . . . . . . . . . . . . . .                  ... 
+  |     . . . . . . . . . . . . . . . . .   . . . .   
+  |     . . . . . . . . . .   . . . . . . . . . . .   {__name__="errors_total", method="POST"}
+  |           . . .   . . . . . . . . .   . . . . .   {__name__="errors_total", method="GET"}
+  |         . . . . . . . . .       . . . . .
+  |       . . .     . . . . . . . . . . . . . . . .                  ... 
+  |     . . . . . . . . . . . . . . . .   . . . . 
   v
     <-------------------- time --------------------->
 ```
 - Prometheus retrieves in batch from _targets_ concurrently as samples from each targets are independent. A Prometheus instance collects data points from tens of thousands of targets, each with hundreds to thousands of time series
 - Batch writing larger chunks of data is needed. While SSDs are fast for random writes, they only write in pages of 4KiB—writing 16 byte is equivalent to full 4KiB—which is known as [write amplification](https://en.wikipedia.org/wiki/Write_amplification)
-- Querying pattern ≠ writing pattern. We can query a single data point from a significantly large number of series. 
+- Querying pattern ≠ writing pattern, we can query a single data point from a significantly large number of series
 ```
          +------+------+------+------+
          | t1   | t2   | t3   | t4   |
@@ -34,8 +34,8 @@ series d | d1   | d2   | d3   | d4   |
          +------+------+------+------+
           Batch1 Batch2 Batch3 Batch4
 ```
-- Batch writes => vertical sets of data. Querying data points for a series over a time window is slow, since we're reading from random pages.
-- Samples from same series should be stored sequentially => scanning with few reads.
+- Batch writes => vertical sets of data, querying data points for a series over a time window is slow, since we're reading from random pages
+- Samples from same series should be stored sequentially => scanning with few reads
 - Problem: fast write from data to disk & efficient layout for queries
 #### Prometheus's (current) V2 storage
 - Create one file per time series that contains all of its samples in sequential order
@@ -43,21 +43,23 @@ series d | d1   | d2   | d3   | d4   |
 - Sample changes very little with previous sample => enables compression format
 - Gorilla TSDB's compression format: 16 byte => 1.37 byte sample on average
 ```
-   ┌──────────┬─────────┬─────────┬─────────┬─────────┐           series A
-   └──────────┴─────────┴─────────┴─────────┴─────────┘
-          ┌──────────┬─────────┬─────────┬─────────┬─────────┐    series B
-          └──────────┴─────────┴─────────┴─────────┴─────────┘ 
+   +----------+---------+---------+---------+---------+           series A
+   +----------+---------+---------+---------+---------+
+          +----------+---------+---------+---------+---------+    series B
+          +----------+---------+---------+---------+---------+ 
                               . . .
- ┌──────────┬─────────┬─────────┬─────────┬─────────┬─────────┐   series XYZ
- └──────────┴─────────┴─────────┴─────────┴─────────┴─────────┘ 
+ +----------+---------+---------+---------+---------+---------+   series XYZ
+ +----------+---------+---------+---------+---------+---------+ 
    chunk 1    chunk 2   chunk 3     ...
 ```
-- Keeping a separate file for each series is problematic
-- A lot more files are needed than the number of time series. Millions of files => run out of [inodes](https://en.wikipedia.org/wiki/Inode). Reformatting disks is disruptive.
-- Every second, thousands of chunks might be filled => flushed to different places. So the number of writes is still high => slower.
-- DB can't keep files opened as they use OS entries. Files are closed => querying old data must open thousands of files => slow. Caching hides slowness. Caching too aggressively => increases memory use.
-- Old data has to be deleted by removing it from the front of the files => write intensive & further write amplification.
-- Head chunk (not full) are held in memory => data loss if app crashes. Prevention by periodically checkpointing memory to disk => slow. Recovery from checkpoint is also slow.
+- Keeping a separate file for each series is problematic => a lot more files are needed than the number of time series
+- Millions of files => run out of [inodes](https://en.wikipedia.org/wiki/Inode), reformatting disks is disruptive
+- Every second, thousands of chunks are flushed to different places, high write load => slower
+- DB can't keep files opened as they use OS entries, files are closed => querying old data must open thousands of files => slow
+- Caching hides slowness, caching too aggressively => increases memory use
+- Old data has to be deleted by removing it from the front of the files => write intensive & further write amplification
+- Head chunk (not full) are held in memory => data loss if app crashes
+- Prevent by periodically checkpointing memory to disk => slow, recovery from checkpoint is also slow
 #### Series Churn
 - Series churn: inactive set of time series, i.e. receives no more data points
 - For example, performing a rolling update on microservices instances that generate the time series introduces series churn
@@ -65,17 +67,17 @@ series d | d1   | d2   | d3   | d4   |
 ```
 series
   ^
-  │   . . . . . .
-  │   . . . . . .
-  │   . . . . . .
-  │               . . . . . . .
-  │               . . . . . . .
-  │               . . . . . . .
-  │                             . . . . . .
-  │                             . . . . . .
-  │                                         . . . . .
-  │                                         . . . . .
-  │                                         . . . . .
+  |   . . . . . .
+  |   . . . . . .
+  |   . . . . . .
+  |               . . . . . . .
+  |               . . . . . . .
+  |               . . . . . . .
+  |                             . . . . . .
+  |                             . . . . . .
+  |                                         . . . . .
+  |                                         . . . . .
+  |                                         . . . . .
   v
     <-------------------- time --------------------->
 ```
@@ -131,16 +133,16 @@ $ tree ./data
 - Partition the time space into non-overlapping blocks
 - Each block is a fully independent DB of all time series for its time window
 ```
-t0            t1             t2             t3             now
- ┌───────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
- │           │  │           │  │           │  │           │                 ┌────────────┐
- │           │  │           │  │           │  │  mutable  │ <─── write ──── ┤ Prometheus │
- │           │  │           │  │           │  │           │                 └────────────┘
- └───────────┘  └───────────┘  └───────────┘  └───────────┘                        ^
-       └──────────────┴───────┬──────┴──────────────┘                              │
-                              │                                                  query
-                              │                                                    │
-                            merge ─────────────────────────────────────────────────┘
+t0          t1          t2          t3          now
++---------+ +---------+ +---------+ +---------+
+|         | |         | |         | |         |            +------------+
+|         | |         | |         | | mutable | <- write - | Prometheus |
+|         | |         | |         | |         |            +------------+
++---------+ +---------+ +---------+ +---------+                 ^
+     +-----------+-----+-----+-----------+                      |
+                       |                                      query
+                       |                                        |
+                     merge -------------------------------------+
 ```
 - Every block is immutable except the currently written one
 - New data is written to in-memory DB & temporary [WAL](https://en.wikipedia.org/wiki/Write-ahead_logging)
@@ -164,24 +166,24 @@ t0            t1             t2             t3             now
 - Side effect: dropping deleted data, restructuring chunks for improved query performance
 ```
 t0             t1            t2             t3             t4             now
- ┌────────────┐  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
- │ 1          │  │ 2        │  │ 3         │  │ 4         │  │ 5 mutable │    before
- └────────────┘  └──────────┘  └───────────┘  └───────────┘  └───────────┘
- ┌─────────────────────────────────────────┐  ┌───────────┐  ┌───────────┐
- │ 1              compacted                │  │ 4         │  │ 5 mutable │    after (option A)
- └─────────────────────────────────────────┘  └───────────┘  └───────────┘
- ┌──────────────────────────┐  ┌──────────────────────────┐  ┌───────────┐
- │ 1       compacted        │  │ 3      compacted         │  │ 5 mutable │    after (option B)
- └──────────────────────────┘  └──────────────────────────┘  └───────────┘
+ +------------+  +----------+  +-----------+  +-----------+  +-----------+
+ | 1          |  | 2        |  | 3         |  | 4         |  | 5 mutable |    before
+ +------------+  +----------+  +-----------+  +-----------+  +-----------+
+ +-----------------------------------------+  +-----------+  +-----------+
+ | 1              compacted                |  | 4         |  | 5 mutable |    after (option A)
+ +-----------------------------------------+  +-----------+  +-----------+
+ +--------------------------+  +--------------------------+  +-----------+
+ | 1       compacted        |  | 3      compacted         |  | 5 mutable |    after (option B)
+ +--------------------------+  +--------------------------+  +-----------+
 ```
 - `[1,2,3,4]` can be compacted to `[1,4]` or `[1,3]` => reduces merging cost
 #### Rentention
 - 
 ```
                       |
- ┌────────────┐  ┌────┼─────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
- │ 1          │  │ 2  |     │  │ 3         │  │ 4         │  │ 5         │   . . .
- └────────────┘  └────┼─────┘  └───────────┘  └───────────┘  └───────────┘
+ +------------+  +----+-----+  +-----------+  +-----------+  +-----------+
+ | 1          |  | 2  |     |  | 3         |  | 4         |  | 5         |   . . .
+ +------------+  +----+-----+  +-----------+  +-----------+  +-----------+
                       |
                       |
              retention boundary
@@ -204,7 +206,7 @@ t0             t1            t2             t3             t4             now
 ```
 __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 2000003 ]
      app="foo"              ->   [ 1, 3, 10, 11, 12, 100, 311, 320, 1000, 1001, 10002 ]
-             intersection   =>   [ 1000, 1001 ]
+             intersection   ->   [ 1000, 1001 ]
 ```
 - Sorted inverted indexes => scanning both lists takes *O(2n) ~ O(n)*
 - For k lists, it now takes *O(nk)* instead of *O(n^k)*
