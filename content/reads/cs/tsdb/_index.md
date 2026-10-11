@@ -233,7 +233,11 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 ---
 ### Prometheus TSDB
 #### The Head Block
-
+![](head_1.svg)
+- `(t, v)` => active chunk (head) & WAL => full chunk => disk & memory-mapped => persistent blocks => merged blocks => deleted after retention window
+![](head_2.svg)
+![](head_3.svg)
+![](head_4.svg)
 #### WAL and Checkpoint
 #### Memory Mapping of Head Chunks from Disk
 ---

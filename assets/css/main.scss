@@ -9,6 +9,8 @@
     &:visited { color: $--visited-link-color; }
   }
 
+  .sep { color: $--link-color; }
+
   details {
     border: thin solid $--primary-text-color;
   }
