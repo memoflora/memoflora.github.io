@@ -181,8 +181,9 @@ t0             t1            t2             t3             t4             now
  +--------------------------+  +--------------------------+  +-----------+
 ```
 - `[1,2,3,4]` can be compacted to `[1,4]` or `[1,3]` => reduces merging cost
-#### Rentention
-- 
+#### Retention
+- Drop old data => delete blocks outside the retention window
+- Block 1 can safely be deleted while 2 has to wait until it's fully behind the boundary
 ```
                       |
  +------------+  +----+-----+  +-----------+  +-----------+  +-----------+
@@ -231,6 +232,7 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 ---
 ### Prometheus TSDB
 #### The Head Block
+
 #### WAL and Checkpoint
 #### Memory Mapping of Head Chunks from Disk
 ---
