@@ -177,6 +177,14 @@ code {
   -webkit-text-size-adjust: 100%;
 }
 
+// Diagrams: ```diagram fences. Inconsolata (Google Fonts subsets) has no
+// box-drawing glyphs, so use one system font to keep character widths equal.
+code.language-diagram {
+  font-family: ui-monospace, Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+  font-size: 0.85em;
+  line-height: 1.1;
+}
+
 code:not(pre > code) {
   padding: 0.1em 0.2em;
   border-radius: 4px;

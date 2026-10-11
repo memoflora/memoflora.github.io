@@ -8,26 +8,26 @@ title = "Time-series storage engine"
 - Identifier: metric name with dictionary of label dimensions, e.g. `requests_total{path="/status", method="GET", instance=”10.0.0.1:80”}` or `{__name__="requests_total", path="/status", method="GET", instance=”10.0.0.1:80”}`
 - Query by selecting labels and time window
 #### Writing pattern
-```
+```diagram
 series
   ^   
-  |   . . . . . . . . . . . . . . . . .   . . . . .   {__name__="request_total", method="GET"}
-  |     . . . . . . . . . . . . . . . . . . . . . .   {__name__="request_total", method="POST"}
-  |         . . . . . . .
-  |       . . .     . . . . . . . . . . . . . . . .                  ... 
-  |     . . . . . . . . . . . . . . . . .   . . . .   
-  |     . . . . . . . . . .   . . . . . . . . . . .   {__name__="errors_total", method="POST"}
-  |           . . .   . . . . . . . . .   . . . . .   {__name__="errors_total", method="GET"}
-  |         . . . . . . . . .       . . . . .
-  |       . . .     . . . . . . . . . . . . . . . .                  ... 
-  |     . . . . . . . . . . . . . . . .   . . . . 
+  │   . . . . . . . . . . . . . . . . .   . . . . .   {__name__="request_total", method="GET"}
+  │     . . . . . . . . . . . . . . . . . . . . . .   {__name__="request_total", method="POST"}
+  │         . . . . . . .
+  │       . . .     . . . . . . . . . . . . . . . .                  ... 
+  │     . . . . . . . . . . . . . . . . .   . . . .   
+  │     . . . . . . . . . .   . . . . . . . . . . .   {__name__="errors_total", method="POST"}
+  │           . . .   . . . . . . . . .   . . . . .   {__name__="errors_total", method="GET"}
+  │         . . . . . . . . .       . . . . .
+  │       . . .     . . . . . . . . . . . . . . . .                  ... 
+  │     . . . . . . . . . . . . . . . .   . . . . 
   v
     <-------------------- time --------------------->
 ```
 - Prometheus retrieves in batch from _targets_ concurrently as samples from each targets are independent. A Prometheus instance collects data points from tens of thousands of targets, each with hundreds to thousands of time series
 - Batch writing larger chunks of data is needed. While SSDs are fast for random writes, they only write in pages of 4KiB—writing 16 byte is equivalent to full 4KiB—which is known as [write amplification](https://en.wikipedia.org/wiki/Write_amplification)
 - Querying pattern ≠ writing pattern, we can query a single data point from a significantly large number of series
-```
+```diagram
          +------+------+------+------+
          | t1   | t2   | t3   | t4   |
          |------|------|------|------|
@@ -46,14 +46,14 @@ series d | d1   | d2   | d3   | d4   |
 - Writing single samples is expensive => batch writing of 1KiB chunks of samples for a series in memory, then flush to files
 - Sample changes very little with previous sample => enables compression format
 - Gorilla TSDB's compression format: 16 byte => 1.37 byte sample on average
-```
-   +----------+---------+---------+---------+---------+           series A
-   +----------+---------+---------+---------+---------+
-          +----------+---------+---------+---------+---------+    series B
-          +----------+---------+---------+---------+---------+ 
+```diagram
+   ┌──────────┬─────────┬─────────┬─────────┬─────────┐           series A
+   └──────────┴─────────┴─────────┴─────────┴─────────┘
+          ┌──────────┬─────────┬─────────┬─────────┬─────────┐    series B
+          └──────────┴─────────┴─────────┴─────────┴─────────┘ 
                               . . .
- +----------+---------+---------+---------+---------+---------+   series XYZ
- +----------+---------+---------+---------+---------+---------+ 
+ ┌──────────┬─────────┬─────────┬─────────┬─────────┬─────────┐   series XYZ
+ └──────────┴─────────┴─────────┴─────────┴─────────┴─────────┘ 
    chunk 1    chunk 2   chunk 3     ...
 ```
 - Keeping a separate file for each series is problematic => a lot more files are needed than the number of time series
@@ -68,20 +68,20 @@ series d | d1   | d2   | d3   | d4   |
 - Series churn: inactive set of time series, i.e. receives no more data points
 - For example, performing a rolling update on microservices instances that generate the time series introduces series churn
 - This may happen frequently by systems like Kubernetes
-```
+```diagram
 series
   ^
-  |   . . . . . .
-  |   . . . . . .
-  |   . . . . . .
-  |               . . . . . . .
-  |               . . . . . . .
-  |               . . . . . . .
-  |                             . . . . . .
-  |                             . . . . . .
-  |                                         . . . . .
-  |                                         . . . . .
-  |                                         . . . . .
+  │   . . . . . .
+  │   . . . . . .
+  │   . . . . . .
+  │               . . . . . . .
+  │               . . . . . . .
+  │               . . . . . . .
+  │                             . . . . . .
+  │                             . . . . . .
+  │                                         . . . . .
+  │                                         . . . . .
+  │                                         . . . . .
   v
     <-------------------- time --------------------->
 ```
@@ -102,7 +102,7 @@ series
 - Write amplification may still exist by having too small write batches & not aligning data precisely on page boundaries
 #### Prometheus's (new) V3 storage
 - The macro layout of the storage:
-```
+```diagram
 $ tree ./data
 ./data
 ├── b-000001
@@ -136,17 +136,17 @@ $ tree ./data
 #### Horizontal Partitioning
 - Partition the time space into non-overlapping blocks
 - Each block is a fully independent DB of all time series for its time window
-```
+```diagram
 t0          t1          t2          t3          now
-+---------+ +---------+ +---------+ +---------+
-|         | |         | |         | |         |            +------------+
-|         | |         | |         | | mutable | <- write - | Prometheus |
-|         | |         | |         | |         |            +------------+
-+---------+ +---------+ +---------+ +---------+                 ^
-     +-----------+-----+-----+-----------+                      |
-                       |                                      query
-                       |                                        |
-                     merge -------------------------------------+
+┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐
+│         │ │         │ │         │ │         │            ┌────────────┐
+│         │ │         │ │         │ │ mutable │ <─ write ─ ┤ Prometheus │
+│         │ │         │ │         │ │         │            └────────────┘
+└─────────┘ └─────────┘ └─────────┘ └─────────┘                 ^
+     └───────────┴─────┬─────┴───────────┘                      │
+                       │                                      query
+                       │                                        │
+                     merge ─────────────────────────────────────┘
 ```
 - Every block is immutable except the currently written one
 - New data is written to in-memory DB & temporary [WAL](https://en.wikipedia.org/wiki/Write-ahead_logging)
@@ -168,27 +168,27 @@ t0          t1          t2          t3          now
 - Querying multiple blocks => merge partial results, costly for long query
 - Compaction: combining blocks into a potentially larger block
 - Side effect: dropping deleted data, restructuring chunks for improved query performance
-```
+```diagram
 t0             t1            t2             t3             t4             now
- +------------+  +----------+  +-----------+  +-----------+  +-----------+
- | 1          |  | 2        |  | 3         |  | 4         |  | 5 mutable |    before
- +------------+  +----------+  +-----------+  +-----------+  +-----------+
- +-----------------------------------------+  +-----------+  +-----------+
- | 1              compacted                |  | 4         |  | 5 mutable |    after (option A)
- +-----------------------------------------+  +-----------+  +-----------+
- +--------------------------+  +--------------------------+  +-----------+
- | 1       compacted        |  | 3      compacted         |  | 5 mutable |    after (option B)
- +--------------------------+  +--------------------------+  +-----------+
+ ┌────────────┐  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+ │ 1          │  │ 2        │  │ 3         │  │ 4         │  │ 5 mutable │    before
+ └────────────┘  └──────────┘  └───────────┘  └───────────┘  └───────────┘
+ ┌─────────────────────────────────────────┐  ┌───────────┐  ┌───────────┐
+ │ 1              compacted                │  │ 4         │  │ 5 mutable │    after (option A)
+ └─────────────────────────────────────────┘  └───────────┘  └───────────┘
+ ┌──────────────────────────┐  ┌──────────────────────────┐  ┌───────────┐
+ │ 1       compacted        │  │ 3      compacted         │  │ 5 mutable │    after (option B)
+ └──────────────────────────┘  └──────────────────────────┘  └───────────┘
 ```
 - `[1,2,3,4]` can be compacted to `[1,4]` or `[1,3]` => reduces merging cost
 #### Retention
 - Drop old data => delete blocks outside the retention window
 - Block 1 can safely be deleted while 2 has to wait until it's fully behind the boundary
-```
+```diagram
                       |
- +------------+  +----+-----+  +-----------+  +-----------+  +-----------+
- | 1          |  | 2  |     |  | 3         |  | 4         |  | 5         |   . . .
- +------------+  +----+-----+  +-----------+  +-----------+  +-----------+
+ ┌────────────┐  ┌────┼─────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐
+ │ 1          │  │ 2  |     │  │ 3         │  │ 4         │  │ 5         │   . . .
+ └────────────┘  └────┼─────┘  └───────────┘  └───────────┘  └───────────┘
                       |
                       |
              retention boundary
@@ -208,7 +208,7 @@ t0             t1            t2             t3             t4             now
 - `__name__="requests_total" AND app="foo"`: take the inverted index list for each and intersect them
 - Each input list has worst case size *O(n)* => taking the intersection takes *O(n^2)*
 - Adding more labels increases the exponent to *O(n^3), O(n^4), ..., O(n^k)*
-```
+```diagram
 __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 2000003 ]
      app="foo"              ->   [ 1, 3, 10, 11, 12, 100, 311, 320, 1000, 1001, 10002 ]
              intersection   ->   [ 1000, 1001 ]
