@@ -1,3 +1,7 @@
++++
+title = "Time-series storage engine"
++++
+
 ### Writing a Time Series Database from Scratch
 #### Time series data
 - Time series: identifier & stream of samples/data points as tuples `(timestamp: time, value: float64_t)`, e.g. `identifier -> (t0, v0), (t1, v1), (t2, v2), (t3, v3), ...`
