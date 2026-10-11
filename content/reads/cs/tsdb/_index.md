@@ -222,13 +222,14 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 - V3 does this by having separate immutable index per block, only modified via rewrite on compaction
 - Only indexes for mutable blocks are held in memory to be updated
 #### Benchmarking
+- Ran two Prometheus 1.5.2 servers (V2 storage) and two Prometheus 2.0 servers (V3 storage) over 12 hrs
+- In most graphs, there's a spike in Prometheus 1.5.2 which aligns with the retention boundary at 6 hrs
 ![Heap memory usage in GB](heap_usage.png)
 ![CPU usage in cores/second](cpu_usage.png)
 ![Disk writes in MB/second](disk_writes.png)
 ![Disk size in GB](disk_usage.png)
 ![99th percentile query latency in seconds](query_latency.png)
 ![Ingested samples/second](ingestion_rate.png)
-- In most graphs, there's a spike in Prometheus 1.5 which aligns with the retention boundary at 6 hrs
 ---
 ### Prometheus TSDB
 #### The Head Block
