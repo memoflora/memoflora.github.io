@@ -5,7 +5,7 @@
         <script>
             try {
                 var t = localStorage.getItem("theme");
-                if (t === "dark" || t === "light") document.body.setAttribute("a", t);
+                if (t === "inverted" || t === "light") document.body.setAttribute("a", t);
             } catch (e) {}
         </script>
         {{- partial "navbar.html" . -}}

@@ -88,24 +88,17 @@
   }
 }
 
-@mixin dark-appearance {
-  @include theme(#232220, #c8c2b6, #918c81, #f0624f, #f0624f, #f0624f, #4d4a45); // modus-vivendi
+// accent color as background, light background color as text
+@mixin inverted-appearance {
+  @include theme(#e94f3c, #fefefe, #ffe1dc, #0045a8, #0045a8, #0045a8, #f48e80);
 }
 
 @mixin light-appearance {
   @include theme(#fefefe, #333230, #595959, #e94f3c, #e94f3c, #e94f3c, #e6e6e6); // modus-operandi
 }
 
-body[a="dark"] { @include dark-appearance; }
-body[a="light"] { @include light-appearance; }
-
-@media (prefers-color-scheme: dark) {
-  body[a="auto"] { @include dark-appearance; }
-}
-
-@media (prefers-color-scheme: light) {
-  body[a="auto"] { @include light-appearance; }
-}
+body[a="inverted"] { @include inverted-appearance; }
+body[a="light"], body[a="auto"] { @include light-appearance; }
 
 // -------------------------------------------- //
 
@@ -281,18 +274,8 @@ details[open] summary {
   p { margin: 0; }
 }
 
-// show the negative profile picture in dark mode
-body[a="dark"] .intro {
-  .pfp-light { display: none; }
-  .pfp-dark { display: inline; }
-}
-
-@media (prefers-color-scheme: dark) {
-  body[a="auto"] .intro {
-    .pfp-light { display: none; }
-    .pfp-dark { display: inline; }
-  }
-}
+// show the profile picture with its colors inverted in inverted mode
+body[a="inverted"] .intro .pfp-light { filter: invert(1); }
 
 .post-meta {
   display: flex;
