@@ -18,5 +18,7 @@
         {{- partial "search.html" . -}}
         {{ $theme := resources.Get "js/theme.js" | resources.Minify | resources.Fingerprint "sha512" }}
         <script defer src="{{ $theme.RelPermalink }}" integrity="{{ $theme.Data.Integrity }}"></script>
+        {{ $lightbox := resources.Get "js/lightbox.js" | resources.Minify | resources.Fingerprint "sha512" }}
+        <script defer src="{{ $lightbox.RelPermalink }}" integrity="{{ $lightbox.Data.Integrity }}"></script>
     </body>
 </html>

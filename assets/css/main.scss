@@ -59,6 +59,8 @@
     background-color: rgba($--bg-color, 0.25);
   }
 
+  #lightbox::backdrop { background-color: rgba($--bg-color, 0.5); }
+
   #search {
     background-color: $--bg-color;
     color: $--primary-text-color;
@@ -199,6 +201,33 @@ img {
   display: block;
   margin: 0 auto;
 }
+
+main figure img { cursor: pointer; }
+
+#lightbox {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: visible;
+  outline: none;
+
+  &::backdrop {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  img {
+    max-width: 92vw;
+    max-height: 92vh;
+    object-fit: contain;
+    cursor: pointer;
+    outline: none;
+  }
+}
+
+body:has(#lightbox[open]) { overflow: hidden; }
 
 figcaption {
   text-align: center;
