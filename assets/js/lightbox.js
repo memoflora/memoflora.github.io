@@ -21,6 +21,7 @@
   function show(i) {
     index = (i + figures.length) % figures.length;
     var item = sourceOf(figures[index]);
+    image.classList.toggle("vector", /\.svg([?#]|$)/i.test(item.src));
     image.src = item.src;
     image.alt = item.alt;
   }

@@ -227,6 +227,9 @@ main figure img { cursor: pointer; }
     object-fit: contain;
     cursor: pointer;
     outline: none;
+
+    // SVG files with only a viewBox have no intrinsic size
+    &.vector { width: 92vw; }
   }
 }
 
