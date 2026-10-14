@@ -271,13 +271,14 @@ main figure img { cursor: pointer; }
   // Swipeable strip: it always settles on one image, and a swipe moves one image.
   .lightbox-track {
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
-    touch-action: pan-x;
-    scroll-snap-type: x mandatory;
+    touch-action: pan-y;
+    scroll-snap-type: y mandatory;
     scrollbar-width: none;
 
     &::-webkit-scrollbar { display: none; }

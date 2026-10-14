@@ -20,13 +20,36 @@
   }
 
   function current() {
-    return Math.round(track.scrollLeft / track.clientWidth);
+    var slide = track.firstElementChild;
+    if (!slide) return 0;
+    return Math.round(track.scrollTop / slide.offsetHeight);
+  }
+
+  // Align the opened slide with the track by the slide's own position, not by
+  // a computed height, so fractional heights cannot leave it off by a few pixels.
+  function align() {
+    var slide = track.children[index];
+    if (slide) track.scrollTop = slide.offsetTop - track.offsetTop;
+  }
+
+  // Load full images for the current slide and its neighbors only. Loading
+  // every image of a large set at once can stall a phone.
+  function hydrate() {
+    for (var i = index - 1; i <= index + 1; i++) {
+      var slide = track.children[(i + count) % count];
+      var img = slide && slide.firstChild;
+      if (img && img.dataset.full) {
+        img.src = img.dataset.full;
+        delete img.dataset.full;
+      }
+    }
   }
 
   // Wraps around at either end.
   function go(i) {
     index = (i + count) % count;
-    track.scrollTo({ left: index * track.clientWidth, behavior: "instant" });
+    align();
+    hydrate();
   }
 
   function open(figure) {
@@ -43,38 +66,52 @@
     index = figures.indexOf(figure);
 
     track.textContent = "";
-    figures.forEach(function (f, i) {
+    figures.forEach(function (f) {
       var item = sourceOf(f);
+      var shown = f.querySelector("img");
       var slide = document.createElement("div");
       slide.className = "lightbox-slide";
       var img = document.createElement("img");
       img.alt = item.alt;
-      img.loading = i === index ? "eager" : "lazy";
       img.classList.toggle("vector", /\.svg([?#]|$)/i.test(item.src));
-      img.src = item.src;
+      // Start with the small image already on the page. The full image loads
+      // only when the slide is the current one or next to it.
+      img.src = shown.currentSrc || shown.src;
+      img.dataset.full = item.src;
+      // Reserve the final size, as the small image may be much smaller.
+      if (shown.naturalWidth && shown.naturalHeight && !img.classList.contains("vector")) {
+        var ratio = shown.naturalWidth / shown.naturalHeight;
+        img.style.aspectRatio = ratio;
+        img.style.width = "min(92vw, calc(92vh * " + ratio + "))";
+      }
       slide.appendChild(img);
       track.appendChild(slide);
     });
 
     dialog.showModal();
     go(index);
+    hydrate();
+    // Some mobile browsers have not finished laying out a just-opened dialog,
+    // so the first jump can land in the wrong place. Repeat it on the next
+    // frame, unless the user has already moved.
+    var opened = index;
+    requestAnimationFrame(function () {
+      if (dialog.open && index === opened) align();
+    });
   }
+
+  // Rotating the phone or showing the address bar changes the slide height.
+  window.addEventListener("resize", function () {
+    if (dialog.open) align();
+  });
 
   track.addEventListener("scroll", function () {
     index = current();
+    hydrate();
   }, { passive: true });
 
-  // Like a story: tap the left 25% for the previous image and the right 25%
-  // for the next one. The middle closes the preview. A single image closes on
-  // any tap.
-  var EDGE = 0.25;
-  dialog.addEventListener("click", function (e) {
-    var x = e.clientX / window.innerWidth;
-    if (count < 2 || (x >= EDGE && x <= 1 - EDGE)) {
-      dialog.close();
-    } else {
-      go(current() + (x < EDGE ? -1 : 1));
-    }
+  dialog.addEventListener("click", function () {
+    dialog.close();
   });
 
   dialog.addEventListener("close", function () {
@@ -83,10 +120,10 @@
 
   dialog.addEventListener("keydown", function (e) {
     if (count < 2) return;
-    if (e.key === "ArrowLeft") {
+    if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
       e.preventDefault();
       go(current() - 1);
-    } else if (e.key === "ArrowRight") {
+    } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault();
       go(current() + 1);
     }
