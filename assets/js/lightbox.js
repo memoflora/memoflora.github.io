@@ -32,22 +32,6 @@
     if (slide) track.scrollTop = slide.offsetTop - track.offsetTop;
   }
 
-  function ratioOf(figure, shown) {
-    var flex = parseFloat(figure.style.flexGrow);
-    if (flex > 0) return flex;
-    if (shown.naturalWidth && shown.naturalHeight) {
-      return shown.naturalWidth / shown.naturalHeight;
-    }
-    return 0;
-  }
-
-  // Size the image as large as the screen allows at its aspect ratio.
-  function fit(img, ratio) {
-    if (!ratio) return;
-    img.style.aspectRatio = ratio;
-    img.style.width = "min(92vw, calc(92vh * " + ratio + "))";
-  }
-
   // Load full images for the current slide and its neighbors only. Loading
   // every image of a large set at once can stall a phone.
   function hydrate() {
@@ -55,12 +39,6 @@
       var slide = track.children[(i + count) % count];
       var img = slide && slide.firstChild;
       if (img && img.dataset.full) {
-        // Use the real size once the full image is known.
-        img.addEventListener("load", function () {
-          if (this.naturalWidth && this.naturalHeight && !this.classList.contains("vector")) {
-            fit(this, this.naturalWidth / this.naturalHeight);
-          }
-        }, { once: true });
         img.src = img.dataset.full;
         delete img.dataset.full;
       }
@@ -95,17 +73,10 @@
       slide.className = "lightbox-slide";
       var img = document.createElement("img");
       img.alt = item.alt;
-      img.classList.toggle("vector", /\.svg([?#]|$)/i.test(item.src));
       // Start with the small image already on the page. The full image loads
       // only when the slide is the current one or next to it.
       img.src = shown.currentSrc || shown.src;
       img.dataset.full = item.src;
-      // Reserve the final size, as the small image may be much smaller. The
-      // aspect ratio comes from the page layout (/pics sets it as the figure's
-      // flex value) because a thumbnail that has not decoded has no size yet.
-      if (!img.classList.contains("vector")) {
-        fit(img, ratioOf(f, shown));
-      }
       slide.appendChild(img);
       track.appendChild(slide);
     });

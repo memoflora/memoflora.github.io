@@ -293,15 +293,15 @@ main figure img { cursor: pointer; }
     scroll-snap-stop: always;
   }
 
+  // Every image gets the same box, and object-fit scales it to fit inside.
+  // The box does not depend on the image, so a small placeholder, a half-loaded
+  // image and the final image all show at the same size.
   img {
-    max-width: 92vw;
-    max-height: 92vh;
+    width: 92vw;
+    height: 92vh;
     object-fit: contain;
     cursor: pointer;
     outline: none;
-
-    // SVG files with only a viewBox have no intrinsic size
-    &.vector { width: 92vw; }
   }
 }
 
