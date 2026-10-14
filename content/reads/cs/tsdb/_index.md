@@ -256,6 +256,7 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 - Recovery uses on-disk memory-mapped chunks and WAL to reconstruct the in-memory indexes and chunks
 - Code references: [tsdb/db.go](https://github.com/prometheus/prometheus/blob/master/tsdb/db.go) & [tsdb/head.go](https://github.com/prometheus/prometheus/blob/master/tsdb/head.go)
 #### WAL and Checkpoint
+
 #### Memory Mapping of Head Chunks from Disk
 ---
 ### Gorilla: A Fast, Scalable, In-Memory Time Series Database
