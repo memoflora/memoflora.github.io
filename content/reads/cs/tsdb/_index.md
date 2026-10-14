@@ -298,11 +298,6 @@ data
 - `checkpoint.X` records the last segment that it covers => DB replays the latest checkpoint and continues from segment `X+1` on restart
 - Replay creates series from `Series` records & add samples from `Samples` records to them, using the reference
 - Code references: [`tsdb/record/record.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/record/record.go), [`tsdb/wlog/wlog.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/wlog.go) & [`tsdb/wlog/checkpoint.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/checkpoint.go)
-#### Memory Mapping of Head Chunks from Disk
----
-### Gorilla: A Fast, Scalable, In-Memory Time Series Database
-#### Section 4.1, the compression section
-#### The design goals list (in the introduction)
 ---
 Sources:
 1. https://fabxc.org/tsdb/ | https://web.archive.org/web/20210803115658/https://fabxc.org/tsdb/
