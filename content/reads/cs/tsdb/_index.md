@@ -255,8 +255,49 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 - Compaction => Head is truncated to remove old chunks => garbage collection removes series that no longer exist in the Head from the index
 - Recovery uses on-disk memory-mapped chunks and WAL to reconstruct the in-memory indexes and chunks
 - Code references: [tsdb/db.go](https://github.com/prometheus/prometheus/blob/master/tsdb/db.go) & [tsdb/head.go](https://github.com/prometheus/prometheus/blob/master/tsdb/head.go)
-#### WAL and Checkpoint
-
+#### WAL
+- WAL: sequential log of events in DB => records each change before DB applies it
+- [Prometheus's WAL](https://github.com/prometheus/prometheus/blob/main/tsdb/docs/format/wal.md) is used on restarts to restore in-memory DB, i.e. the Head block
+- Types of records:
+	- `Series`: list of (series reference, list of label values)
+	- `Samples` : list of (series reference, list of samples of that series in write request)
+	- `Tombstones` : list of (deleted series reference, time ranges)
+- `Series` is written once, `Samples` is written for every write request
+- `Series` is written before `Samples` that refers to it => enables replay
+- `Samples` is written to WAL before going into the Head
+- Delete by writing `Tombstones` into WAL first
+```
+data
+└── wal
+    ├── 000000
+    ├── 000001
+    └── 000002
+```
+- WAL is stored as a sequence of numbered files (segment) of 128MiB each
+- Old WAL segments need to be deleted over time
+- WAL truncation is done after Head truncation
+- DB deletes first N contiguous segments 
+- Random write requests => not easy to find the time window of each segment => delete 2/3 of the segments
+- Blindly deleting segments => lose records => solve by checkpointing 
+#### Checkpointing
+- Checkpoint is a filtered copy of WAL segments that DB is about to delete:
+  - Drop `Series` records for series which are no longer in Head
+	- Drop `Samples` which are before time `T`
+	- Drop `Tombstones` for time windows before `T`
+	- Keep the remaining `Series`, `Samples` & `Tombstones`
+- A drop can be a rewrite as one record may hold several series or samples
+```
+data
+└── wal
+    ├── checkpoint.000003
+    |   ├── 000000
+    |   └── 000001
+    ├── 000004
+    └── 000005
+```
+- `checkpoint.X` records the last segment that it covers => DB replays the latest checkpoint and continues from segment `X+1` on restart
+- Replay creates series from `Series` records & add samples from `Samples` records to them, using the reference
+- Code references: [`tsdb/record/record.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/record/record.go), [`tsdb/wlog/wlog.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/wlog.go) & [`tsdb/wlog/checkpoint.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/checkpoint.go)
 #### Memory Mapping of Head Chunks from Disk
 ---
 ### Gorilla: A Fast, Scalable, In-Memory Time Series Database
