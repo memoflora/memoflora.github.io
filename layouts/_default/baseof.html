@@ -20,5 +20,7 @@
         <script defer src="{{ $theme.RelPermalink }}" integrity="{{ $theme.Data.Integrity }}"></script>
         {{ $lightbox := resources.Get "js/lightbox.js" | resources.Minify | resources.Fingerprint "sha512" }}
         <script defer src="{{ $lightbox.RelPermalink }}" integrity="{{ $lightbox.Data.Integrity }}"></script>
+        {{ $gallery := resources.Get "js/gallery.js" | resources.Minify | resources.Fingerprint "sha512" }}
+        <script defer src="{{ $gallery.RelPermalink }}" integrity="{{ $gallery.Data.Integrity }}"></script>
     </body>
 </html>

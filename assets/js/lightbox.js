@@ -27,10 +27,14 @@
   }
 
   function open(figure) {
-    figures = Array.prototype.filter.call(
-      document.querySelectorAll("main figure"),
-      function (f) { return f.querySelector("img"); }
-    );
+    // Arrow keys only move within a gallery (blog or /pics); other images open alone.
+    var gallery = figure.closest(".gallery, .justified-gallery");
+    figures = gallery
+      ? Array.prototype.filter.call(
+          gallery.querySelectorAll("figure"),
+          function (f) { return f.querySelector("img"); }
+        )
+      : [figure];
     show(figures.indexOf(figure));
     dialog.showModal();
   }

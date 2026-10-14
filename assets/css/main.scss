@@ -11,6 +11,8 @@
 
   .sep { color: $--link-color; }
 
+  .gallery-nav { color: $--link-color; }
+
   details {
     border: thin solid $--primary-text-color;
   }
@@ -26,6 +28,10 @@
   code:not(pre > code) {
     background-color: rgba($--primary-text-color, 0.06);
     color: $--primary-text-color;
+  }
+
+  a code:not(pre > code) {
+    color: inherit;
   }
 
   pre {
@@ -206,6 +212,43 @@ img {
 }
 
 main figure img { cursor: pointer; }
+
+.gallery-track {
+  display: flex;
+  align-items: flex-start;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  figure {
+    flex: 0 0 100%;
+    margin: 0;
+    scroll-snap-align: start;
+  }
+}
+
+.gallery-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0 0.5rem;
+    cursor: pointer;
+    text-decoration: none;
+
+    &:hover:not(:disabled) { text-decoration: underline; }
+    &:disabled { opacity: 0.3; cursor: default; }
+  }
+}
 
 #lightbox {
   padding: 0;

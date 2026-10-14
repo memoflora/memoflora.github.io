@@ -224,23 +224,32 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 #### Benchmarking
 - Ran two Prometheus 1.5.2 servers (V2 storage) and two Prometheus 2.0 servers (V3 storage) over 12 hrs
 - In most graphs, there's a spike in Prometheus 1.5.2 which aligns with the retention boundary at 6 hrs
+{{< gallery >}}
 ![Heap memory usage in GB](heap_usage.png)
 ![CPU usage in cores/second](cpu_usage.png)
 ![Disk writes in MB/second](disk_writes.png)
 ![Disk size in GB](disk_usage.png)
 ![99th percentile query latency in seconds](query_latency.png)
 ![Ingested samples/second](ingestion_rate.png)
+{{< /gallery >}}
 ---
 ### Prometheus TSDB
 #### The Head Block
 ![](head_1.svg)
 - `(t, v)` => active chunk (head) & WAL => full chunk => disk & memory-mapped => persistent blocks => merged blocks => deleted after retention window
+{{< gallery >}}
 ![](head_2.svg)
 ![](head_3.svg)
 ![](head_4.svg)
+{{< /gallery >}}
 - `mmap` allows dynamically loading chunks into memory with reference by the OS
+{{< gallery >}}
 ![](head_5.svg)
 ![](head_6.svg)
+![](head_7.svg)
+![](head_8.svg)
+![](head_9.svg)
+{{< /gallery >}}
 - Chunks => persistent block, WAL is truncated & a "checkpoint" is created
 - (inverted) index of the Head is in memory
 - Compaction => Head is truncated to remove old chunks => garbage collection removes series that no longer exist in the Head from the index
