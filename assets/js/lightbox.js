@@ -7,13 +7,8 @@
   dialog.appendChild(track);
   document.body.appendChild(dialog);
 
-  var touch = window.matchMedia("(pointer: coarse)");
-
-  var figures = [];
+  var count = 0;
   var index = 0;
-  // On touch devices every image is a slide in a scrollable vertical stack.
-  // Elsewhere one image shows at a time and the arrow keys switch it.
-  var stacked = false;
 
   function sourceOf(figure) {
     var img = figure.querySelector("img");
@@ -24,127 +19,76 @@
     };
   }
 
-  function makeSlide(figure, eager) {
-    var item = sourceOf(figure);
-    var slide = document.createElement("div");
-    slide.className = "lightbox-slide";
-    var img = document.createElement("img");
-    img.alt = item.alt;
-    img.loading = eager ? "eager" : "lazy";
-    img.classList.toggle("vector", /\.svg([?#]|$)/i.test(item.src));
-    img.src = item.src;
-    // Reserve the final size, so images that are still loading do not shift
-    // the stack and the opened image can be scrolled into place.
-    var shown = figure.querySelector("img");
-    if (stacked && shown.naturalWidth && shown.naturalHeight) {
-      var ratio = shown.naturalWidth / shown.naturalHeight;
-      img.style.aspectRatio = ratio;
-      img.style.width = "min(92vw, calc(92vh * " + ratio + "))";
-    }
-    slide.appendChild(img);
-    return slide;
-  }
-
-  // The slide whose center is nearest the middle of the screen.
   function current() {
-    var middle = track.scrollTop + track.clientHeight / 2;
-    var best = 0;
-    var bestDistance = Infinity;
-    Array.prototype.forEach.call(track.children, function (slide, i) {
-      var center = slide.offsetTop + slide.offsetHeight / 2;
-      var distance = Math.abs(center - middle);
-      if (distance < bestDistance) {
-        best = i;
-        bestDistance = distance;
-      }
-    });
-    return best;
-  }
-
-  // Extra space before the first and after the last image, so that both can
-  // be scrolled to the middle of the screen. Never less than the usual gap.
-  function padEnds() {
-    var slides = track.children;
-    if (!stacked || !slides.length) return;
-    var first = slides[0];
-    var last = slides[slides.length - 1];
-    var minimum = window.innerWidth * 0.04;
-    var half = track.clientHeight / 2;
-    track.style.paddingTop = Math.max(minimum, half - first.offsetHeight / 2) + "px";
-    track.style.paddingBottom = Math.max(minimum, half - last.offsetHeight / 2) + "px";
+    return Math.round(track.scrollLeft / track.clientWidth);
   }
 
   // Wraps around at either end.
   function go(i) {
-    index = (i + figures.length) % figures.length;
-    if (stacked) {
-      track.children[index].scrollIntoView({ block: "center", behavior: "instant" });
-    } else {
-      track.textContent = "";
-      track.appendChild(makeSlide(figures[index], true));
-    }
+    index = (i + count) % count;
+    track.scrollTo({ left: index * track.clientWidth, behavior: "instant" });
   }
 
   function open(figure) {
     // Only images in a gallery (blog or /pics) can be browsed; others open alone.
     var gallery = figure.closest(".gallery, .justified-gallery");
-    figures = gallery
+    var figures = gallery
       ? Array.prototype.filter.call(
           gallery.querySelectorAll("figure"),
           function (f) { return f.querySelector("img"); }
         )
       : [figure];
+
+    count = figures.length;
     index = figures.indexOf(figure);
-    stacked = touch.matches && figures.length > 1;
 
     track.textContent = "";
-    dialog.classList.toggle("stacked", stacked);
-    if (stacked) {
-      figures.forEach(function (f, i) {
-        track.appendChild(makeSlide(f, i === index));
-      });
-    } else {
-      track.appendChild(makeSlide(figure, true));
-    }
+    figures.forEach(function (f, i) {
+      var item = sourceOf(f);
+      var slide = document.createElement("div");
+      slide.className = "lightbox-slide";
+      var img = document.createElement("img");
+      img.alt = item.alt;
+      img.loading = i === index ? "eager" : "lazy";
+      img.classList.toggle("vector", /\.svg([?#]|$)/i.test(item.src));
+      img.src = item.src;
+      slide.appendChild(img);
+      track.appendChild(slide);
+    });
 
     dialog.showModal();
-    if (stacked) {
-      padEnds();
-      // Unsized images (such as SVG) only get a height once they have loaded.
-      var opened = index;
-      [track.firstChild, track.lastChild].forEach(function (slide) {
-        slide.firstChild.addEventListener("load", function () {
-          padEnds();
-          // Keep the opened image centered only until the user scrolls.
-          if (index === opened) go(index);
-        });
-      });
-      go(index);
-    }
+    go(index);
   }
 
   track.addEventListener("scroll", function () {
-    if (stacked) index = current();
+    index = current();
   }, { passive: true });
 
-  dialog.addEventListener("click", function () {
-    dialog.close();
+  // Like a story: tap the left 25% for the previous image and the right 25%
+  // for the next one. The middle closes the preview. A single image closes on
+  // any tap.
+  var EDGE = 0.25;
+  dialog.addEventListener("click", function (e) {
+    var x = e.clientX / window.innerWidth;
+    if (count < 2 || (x >= EDGE && x <= 1 - EDGE)) {
+      dialog.close();
+    } else {
+      go(current() + (x < EDGE ? -1 : 1));
+    }
   });
 
   dialog.addEventListener("close", function () {
     track.textContent = "";
-    track.style.paddingTop = "";
-    track.style.paddingBottom = "";
   });
 
   dialog.addEventListener("keydown", function (e) {
-    if (figures.length < 2) return;
+    if (count < 2) return;
     if (e.key === "ArrowLeft") {
       e.preventDefault();
-      go(index - 1);
+      go(current() - 1);
     } else if (e.key === "ArrowRight") {
       e.preventDefault();
-      go(index + 1);
+      go(current() + 1);
     }
   });
 

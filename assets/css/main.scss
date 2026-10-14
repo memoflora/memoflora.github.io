@@ -254,6 +254,7 @@ main figure img { cursor: pointer; }
   padding: 0;
   border: 0;
   background: transparent;
+  color: inherit;
   width: 100vw;
   height: 100vh;
   height: 100dvh;
@@ -267,37 +268,28 @@ main figure img { cursor: pointer; }
     -webkit-backdrop-filter: blur(12px);
   }
 
+  // Swipeable strip: it always settles on one image, and a swipe moves one image.
   .lightbox-track {
+    display: flex;
     width: 100%;
     height: 100%;
-    overflow: hidden;
-  }
-
-  // Touch devices: free-scrolling vertical stack, no snapping, so it can
-  // rest between two images.
-  &.stacked .lightbox-track {
-    display: flex;
-    flex-direction: column;
-    // Same gap between images as the margin at the left and right.
-    gap: 4vw;
-    padding: 4vw 0;
-    box-sizing: border-box;
-    overflow-y: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     overscroll-behavior: contain;
-    touch-action: pan-y;
+    touch-action: pan-x;
+    scroll-snap-type: x mandatory;
     scrollbar-width: none;
 
     &::-webkit-scrollbar { display: none; }
-
-    .lightbox-slide { flex: none; height: auto; }
   }
 
   .lightbox-slide {
     flex: 0 0 100%;
-    height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
   }
 
   img {
