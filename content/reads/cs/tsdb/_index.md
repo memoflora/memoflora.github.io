@@ -238,6 +238,14 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 ![](head_2.svg)
 ![](head_3.svg)
 ![](head_4.svg)
+- `mmap` allows dynamically loading chunks into memory with reference by the OS
+![](head_5.svg)
+![](head_6.svg)
+- Chunks => persistent block, WAL is truncated & a "checkpoint" is created
+- (inverted) index of the Head is in memory
+- Compaction => Head is truncated to remove old chunks => garbage collection removes series that no longer exist in the Head from the index
+- Recovery uses on-disk memory-mapped chunks and WAL to reconstruct the in-memory indexes and chunks
+- Code references: [tsdb/db.go](https://github.com/prometheus/prometheus/blob/master/tsdb/db.go) & [tsdb/head.go](https://github.com/prometheus/prometheus/blob/master/tsdb/head.go)
 #### WAL and Checkpoint
 #### Memory Mapping of Head Chunks from Disk
 ---
