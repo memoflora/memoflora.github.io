@@ -278,12 +278,18 @@ main figure img { cursor: pointer; }
   &.stacked .lightbox-track {
     display: flex;
     flex-direction: column;
+    // Same gap between images as the margin at the left and right.
+    gap: 4vw;
+    padding: 4vw 0;
+    box-sizing: border-box;
     overflow-y: auto;
     overscroll-behavior: contain;
     touch-action: pan-y;
     scrollbar-width: none;
 
     &::-webkit-scrollbar { display: none; }
+
+    .lightbox-slide { flex: none; height: auto; }
   }
 
   .lightbox-slide {

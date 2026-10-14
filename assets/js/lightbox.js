@@ -33,19 +33,52 @@
     img.loading = eager ? "eager" : "lazy";
     img.classList.toggle("vector", /\.svg([?#]|$)/i.test(item.src));
     img.src = item.src;
+    // Reserve the final size, so images that are still loading do not shift
+    // the stack and the opened image can be scrolled into place.
+    var shown = figure.querySelector("img");
+    if (stacked && shown.naturalWidth && shown.naturalHeight) {
+      var ratio = shown.naturalWidth / shown.naturalHeight;
+      img.style.aspectRatio = ratio;
+      img.style.width = "min(92vw, calc(92vh * " + ratio + "))";
+    }
     slide.appendChild(img);
     return slide;
   }
 
+  // The slide whose center is nearest the middle of the screen.
   function current() {
-    return Math.round(track.scrollTop / track.clientHeight);
+    var middle = track.scrollTop + track.clientHeight / 2;
+    var best = 0;
+    var bestDistance = Infinity;
+    Array.prototype.forEach.call(track.children, function (slide, i) {
+      var center = slide.offsetTop + slide.offsetHeight / 2;
+      var distance = Math.abs(center - middle);
+      if (distance < bestDistance) {
+        best = i;
+        bestDistance = distance;
+      }
+    });
+    return best;
+  }
+
+  // Extra space before the first and after the last image, so that both can
+  // be scrolled to the middle of the screen. Never less than the usual gap.
+  function padEnds() {
+    var slides = track.children;
+    if (!stacked || !slides.length) return;
+    var first = slides[0];
+    var last = slides[slides.length - 1];
+    var minimum = window.innerWidth * 0.04;
+    var half = track.clientHeight / 2;
+    track.style.paddingTop = Math.max(minimum, half - first.offsetHeight / 2) + "px";
+    track.style.paddingBottom = Math.max(minimum, half - last.offsetHeight / 2) + "px";
   }
 
   // Wraps around at either end.
   function go(i) {
     index = (i + figures.length) % figures.length;
     if (stacked) {
-      track.scrollTo({ top: index * track.clientHeight, behavior: "instant" });
+      track.children[index].scrollIntoView({ block: "center", behavior: "instant" });
     } else {
       track.textContent = "";
       track.appendChild(makeSlide(figures[index], true));
@@ -75,7 +108,19 @@
     }
 
     dialog.showModal();
-    if (stacked) go(index);
+    if (stacked) {
+      padEnds();
+      // Unsized images (such as SVG) only get a height once they have loaded.
+      var opened = index;
+      [track.firstChild, track.lastChild].forEach(function (slide) {
+        slide.firstChild.addEventListener("load", function () {
+          padEnds();
+          // Keep the opened image centered only until the user scrolls.
+          if (index === opened) go(index);
+        });
+      });
+      go(index);
+    }
   }
 
   track.addEventListener("scroll", function () {
@@ -88,6 +133,8 @@
 
   dialog.addEventListener("close", function () {
     track.textContent = "";
+    track.style.paddingTop = "";
+    track.style.paddingBottom = "";
   });
 
   dialog.addEventListener("keydown", function (e) {
