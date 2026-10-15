@@ -1,5 +1,6 @@
 +++
 title = "Time-series storage engine"
+mathjax = true
 +++
 
 ### Writing a Time Series Database from Scratch
@@ -266,7 +267,7 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 - `Series` is written before `Samples` that refers to it => enables replay
 - `Samples` is written to WAL before going into the Head
 - Delete by writing `Tombstones` into WAL first
-```
+```diagram
 data
 └── wal
     ├── 000000
@@ -282,11 +283,11 @@ data
 #### Checkpointing
 - Checkpoint is a filtered copy of WAL segments that DB is about to delete:
   - Drop `Series` records for series which are no longer in Head
-	- Drop `Samples` which are before time `T`
-	- Drop `Tombstones` for time windows before `T`
-	- Keep the remaining `Series`, `Samples` & `Tombstones`
+  - Drop `Samples` which are before time `T`
+  - Drop `Tombstones` for time windows before `T`
+  - Keep the remaining `Series`, `Samples` & `Tombstones`
 - A drop can be a rewrite as one record may hold several series or samples
-```
+```diagram
 data
 └── wal
     ├── checkpoint.000003
@@ -299,9 +300,44 @@ data
 - Replay creates series from `Series` records & add samples from `Samples` records to them, using the reference
 - Code references: [`tsdb/record/record.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/record/record.go), [`tsdb/wlog/wlog.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/wlog.go) & [`tsdb/wlog/checkpoint.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/checkpoint.go)
 ---
+### Gorilla: A Fast, Scalable, In-Memory Time Series Database
+#### Constraints
+- Writes dominate: 
+	- Write rate might exceed tens of millions of data points per second
+	- In contrast, read rate is far lower as it's primarily from automated systems watching "important" time series
+- State transitions:
+	- Supports fine-grained aggregations over short-time windows
+	- Allows automation to quickly fix problems before they spread
+- High availability:
+	- Each datacenter must keep reading and writing its own data when there's a network partition or other failures that cause disconnection between datacenters
+- Fault tolerance:
+	- Replicates all writes to multiple datacenters => survive the loss of any datacenter due to a disaster
+#### Remarks
+- More emphasis on aggregate analysis, rather than individual data points
+- ACID guarantees are not a core requirement as the systems don't store any user data
+- Recent data points are of higher value than older points
+#### Time series compression
+![Compressing values and timestamps: 48 bytes => 21 bytes/167 bits](gorilla_1.jpeg)
+#### Delta-of-delta timestamps
+- The block header stores the starting timestamp $t_{-1}$, which is `02:00:00`
+- First timestamp, $t_{0}$, in the block is stored as delta from $t_{-1}$ in 14 bits
+- For subsequent timestamps, $t_{n}$:
+	- Calculate the delta: $D=(t_{n}-t_{n-1})-(t_{n-1}-t_{n-2})$
+	- If $D$ is $0$, store a single `0` bit
+	- If $D$ is in $[-63, 64]$ , store `10` followed by the value (7 bits)
+	- If $D$ is in $[-63, 64]$ , store `10` followed by the value (7 bits)
+	- If $D$ is in $[-255, 256]$ , store `110` followed by the value (9 bits)
+	- If $D$ is in $[-2047, 2048]$ , store `1110` followed by the value (12 bits)
+	- Otherwise, store `1111` followed by $D$ using 32 bits
+#### XOR'd floating point values
+- The first value is stored with no compression
+- If XOR with the previous is $0$ (same value), store a single `0` bit
+- Else, If XOR is non-zero, calculate the number of leading and trailing zeros in the XOR, store bit `1` followed by either:
+	- Control bit `0`: if the block of meaningful bits falls within the block of previous meaningful bits, i.e. there are at least as many leading and trailing zeros as previously
+  - Control bit `1`: store the length of the number of leading zeros in the next 5 bits, then store the length of the meaningful XOR'd value in the next 6 bits, finally store the meaningful bits of the XOR'd value
+---
 Sources:
 1. https://fabxc.org/tsdb/ | https://web.archive.org/web/20210803115658/https://fabxc.org/tsdb/
 2. https://ganeshvernekar.com/blog/prometheus-tsdb-the-head-block/
 3. https://ganeshvernekar.com/blog/prometheus-tsdb-wal-and-checkpoint/
-4. https://ganeshvernekar.com/blog/prometheus-tsdb-mmapping-head-chunks-from-disk/
-5. https://www.vldb.org/pvldb/vol8/p1816-teller.pdf
+4. https://www.vldb.org/pvldb/vol8/p1816-teller.pdf
