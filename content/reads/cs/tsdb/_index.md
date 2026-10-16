@@ -333,7 +333,7 @@ data
 - The first value is stored with no compression
 - If XOR with the previous is $0$ (same value), store a single `0` bit
 - Else, If XOR is non-zero, calculate the number of leading and trailing zeros in the XOR, store bit `1` followed by either:
-	- Control bit `0`: if the block of meaningful bits falls within the block of previous meaningful bits, i.e. there are at least as many leading and trailing zeros as previously
+	- Control bit `0`: if the block of meaningful bits falls within the block of previous meaningful bits, i.e. there are at least as many leading and trailing zeros as previously, so by reusing that information, only store the meaningful bits of the current XOR
   - Control bit `1`: store the length of the number of leading zeros in the next 5 bits, then store the length of the meaningful XOR'd value in the next 6 bits, finally store the meaningful bits of the XOR'd value
 ---
 Sources:
