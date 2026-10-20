@@ -145,12 +145,17 @@ hr {
 
 :is(h1, h2, h3, h4, h5, h6, p) + ul { margin-top: 0; }
 
+// Extra space between a bullet and its text. The bullet does not move.
+$bullet-gap: 0em;
+
 ul {
-  padding-left: 0.3em;
-  list-style-position: inside;
+  padding-left: 1em;
+  list-style-position: outside;
 }
 
-li > ul { padding-left: 1.5em; }
+ul > li { padding-left: $bullet-gap; }
+
+li > ul { padding-left: 1em; }
 
 pre {
   padding: 0.8em;
@@ -430,7 +435,7 @@ nav {
     overflow-y: auto;
   }
 
-  li { margin: 0; }
+  li { margin: 0; padding-left: 0; }
 
   a {
     display: block;
