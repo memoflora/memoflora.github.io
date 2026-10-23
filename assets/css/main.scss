@@ -96,16 +96,18 @@
   }
 }
 
-// accent color as background, light background color as text
-@mixin inverted-appearance {
-  @include theme(#e94f3c, #fefefe, #ffe1dc, #0045a8, #0045a8, #0045a8, #f48e80);
+// "Heaven or Las Vegas" cover colors as a gradient background, white text
+@mixin holv-appearance {
+  @include theme(#3d406e, #fff, #fff, #d4e08a, #d4e08a, #fff, rgba(#fff, 0.35));
+  background-image: linear-gradient(to bottom, #3d406e 0%, #57405a 40%, #d63322 100%);
+  background-attachment: fixed;
 }
 
 @mixin light-appearance {
   @include theme(#fefefe, #333230, #595959, #e94f3c, #e94f3c, #e94f3c, #e6e6e6); // modus-operandi
 }
 
-body[a="inverted"] { @include inverted-appearance; }
+body[a="holv"] { @include holv-appearance; }
 body[a="light"], body[a="auto"] { @include light-appearance; }
 
 // -------------------------------------------- //
@@ -355,9 +357,6 @@ details[open] summary {
 
   p { margin: 0; }
 }
-
-// show the profile picture with its colors inverted in inverted mode
-body[a="inverted"] .intro .pfp-light { filter: invert(1); }
 
 .post-meta {
   display: flex;
