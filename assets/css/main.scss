@@ -150,14 +150,19 @@ hr {
 // Extra space between a bullet and its text. The bullet does not move.
 $bullet-gap: 0em;
 
+// Indent of each list level. Nested lists use the same value.
 ul {
-  padding-left: 1em;
+  padding-left: 1.2em;
   list-style-position: outside;
 }
 
 ul > li { padding-left: $bullet-gap; }
 
-li > ul { padding-left: 1em; }
+// Space between a list and the text above it (a heading, a paragraph, or the
+// parent bullet). :where() keeps specificity low so the search list can reset it.
+$list-top-gap: 0.4rem;
+
+ul > li:where(:first-child) { margin-top: $list-top-gap; }
 
 pre {
   padding: 0.8em;
