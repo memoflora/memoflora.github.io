@@ -96,10 +96,12 @@
   }
 }
 
-// "Heaven or Las Vegas" cover colors as a gradient background, white text
-@mixin holv-appearance {
-  @include theme(#3d406e, #fff, #fff, #d4e08a, #d4e08a, #fff, rgba(#fff, 0.35));
-  background-image: linear-gradient(to bottom, #3d406e 0%, #57405a 40%, #d63322 100%);
+// "Still in a Dream" cover art as the background, white text
+@mixin art-appearance {
+  @include theme(#5b282b, #fff, #fff, #ffe2cf, #ffe2cf, #fff, rgba(#fff, 0.35));
+  background-image: url("/still-in-a-dream-bg.jpg");
+  background-size: cover;
+  background-position: center;
   background-attachment: fixed;
 }
 
@@ -107,7 +109,7 @@
   @include theme(#fefefe, #333230, #595959, #e94f3c, #e94f3c, #e94f3c, #e6e6e6); // modus-operandi
 }
 
-body[a="holv"] { @include holv-appearance; }
+body[a="art"] { @include art-appearance; }
 body[a="light"], body[a="auto"] { @include light-appearance; }
 
 // -------------------------------------------- //

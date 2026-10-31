@@ -299,6 +299,7 @@ data
 - `checkpoint.X` records the last segment that it covers => DB replays the latest checkpoint and continues from segment `X+1` on restart
 - Replay creates series from `Series` records & add samples from `Samples` records to them, using the reference
 - Code references: [`tsdb/record/record.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/record/record.go), [`tsdb/wlog/wlog.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/wlog.go) & [`tsdb/wlog/checkpoint.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/checkpoint.go)
+- HELLO
 ---
 ### Gorilla: A Fast, Scalable, In-Memory Time Series Database
 #### Constraints

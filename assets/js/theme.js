@@ -3,7 +3,7 @@
   if (!toggle) return;
 
   toggle.addEventListener("click", function () {
-    var next = document.body.getAttribute("a") === "holv" ? "light" : "holv";
+    var next = document.body.getAttribute("a") === "art" ? "light" : "art";
     document.body.setAttribute("a", next);
     try {
       localStorage.setItem("theme", next);
