@@ -256,7 +256,7 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 - Compaction => Head is truncated to remove old chunks => garbage collection removes series that no longer exist in the Head from the index
 - Recovery uses on-disk memory-mapped chunks and WAL to reconstruct the in-memory indexes and chunks
 - Code references: [tsdb/db.go](https://github.com/prometheus/prometheus/blob/master/tsdb/db.go) & [tsdb/head.go](https://github.com/prometheus/prometheus/blob/master/tsdb/head.go)
-#### WAL
+#### Write-Ahead Logging (WAL)
 - WAL: sequential log of events in DB => records each change before DB applies it
 - [Prometheus's WAL](https://github.com/prometheus/prometheus/blob/main/tsdb/docs/format/wal.md) is used on restarts to restore in-memory DB, i.e. the Head block
 - Types of records:
@@ -283,9 +283,9 @@ data
 #### Checkpointing
 - Checkpoint is a filtered copy of WAL segments that DB is about to delete:
   - Drop `Series` records for series which are no longer in Head
-  - Drop `Samples` which are before time `T`
-  - Drop `Tombstones` for time windows before `T`
-  - Keep the remaining `Series`, `Samples` & `Tombstones`
+  - Drop `Samples` records which are before time `T`
+  - Drop `Tombstones` records for time windows before `T`
+  - Keep the remaining `Series`, `Samples` & `Tombstones` records
 - A drop can be a rewrite as one record may hold several series or samples
 ```diagram
 data
@@ -299,7 +299,67 @@ data
 - `checkpoint.X` records the last segment that it covers => DB replays the latest checkpoint and continues from segment `X+1` on restart
 - Replay creates series from `Series` records & add samples from `Samples` records to them, using the reference
 - Code references: [`tsdb/record/record.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/record/record.go), [`tsdb/wlog/wlog.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/wlog.go) & [`tsdb/wlog/checkpoint.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/wlog/checkpoint.go)
-- HELLO
+#### Memory Mapping of Head Chunks from Disk
+##### Format on disk
+- The chunks are stored in the `chunks_head` directory
+```
+data
+├── chunks_head
+|   ├── 000001
+|   └── 000002
+└── wal
+    ├── checkpoint.000003
+    |   ├── 000000
+    |   └── 000001
+    ├── 000004
+    └── 000005
+```
+- Max size of the file is 128MiB, with 8B header
+##### The File
+```
+┌──────────────────────────────┐
+│  magic(0x0130BC91) <4 byte>  │
+├──────────────────────────────┤
+│    version(1) <1 byte>       │
+├──────────────────────────────┤
+│    padding(0) <3 byte>       │
+├──────────────────────────────┤
+│ ┌──────────────────────────┐ │
+│ │         Chunk 1          │ │
+│ ├──────────────────────────┤ │
+│ │          ...             │ │
+│ ├──────────────────────────┤ │
+│ │         Chunk N          │ │
+│ └──────────────────────────┘ │
+└──────────────────────────────┘
+```
+- `Magic Number` uniquely identifies the file as a memory-mapped head chunks file
+- `Chunk Format (version)` tells how to decode the chunks in the file
+- `Padding` allows future header options that might be added
+##### Chunks
+```
+┌─────────────────────┬───────────────────────┬───────────────────────┬───────────────────┬───────────────┬──────────────┬────────────────┐
+| series ref <8 byte> | mint <8 byte, uint64> | maxt <8 byte, uint64> | encoding <1 byte> | len <uvarint> | data <bytes> │ CRC32 <4 byte> │
+└─────────────────────┴───────────────────────┴───────────────────────┴───────────────────┴───────────────┴──────────────┴────────────────┘
+```
+- `series ref` is the series id used to access the series in memory
+- `mint` & `maxt` are the min and max timestamp seen in samples of the chunk
+- `encoding` is the encoding used to compress the chunks
+- `len` is the number of bytes of the `data` field
+- `data` are the actual bytes of the compressed chunk
+- `CRC32` is the checksum of the chunk => checks the data integrity
+##### Reading the chunks
+- For every chunk, the Head block stores the `mint`, `maxt` & a reference in memory to access it
+- The reference is 8 bytes: 4 bytes for file number & 4 bytes for byte offset of the chunk in the file, e.g. file `00093`, offset `1234` => `(93 << 32) | 1234`
+- Store `mint` & `maxt`in Head => selects chunk without reading from disk
+- Access chunk from disk => only the encoding and chunk data using the reference
+- Each chunk file is mapped into memory as one byte array
+- The code reads a chunk at `index = offset` => OS only loads pages of those bytes
+##### Replaying on startup
+- With `mmap`, Prometheus loads the full chunks from `chunks_head` and only compresses again the WAL samples of the active chunk
+- Startup steps:
+  - Iterate through all chunks in `chunks_head`
+  - Build map of `series ref -> list of (chunk reference, mint, maxt)` in memory
 ---
 ### Gorilla: A Fast, Scalable, In-Memory Time Series Database
 #### Constraints
