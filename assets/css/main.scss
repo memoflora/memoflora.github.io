@@ -114,7 +114,14 @@ body[a="light"], body[a="auto"] { @include light-appearance; }
 
 // -------------------------------------------- //
 
-html { height: 100%; }
+// Stop phone browsers from enlarging text, for example in landscape.
+html {
+  height: 100%;
+  text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   font-family: 'Work Sans';
@@ -186,10 +193,6 @@ table, th, td {
 
 code {
   font-family: 'Inconsolata', monospace;
-  text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  -moz-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
 }
 
 // Diagrams: ```diagram fences. Inconsolata (Google Fonts subsets) has no
