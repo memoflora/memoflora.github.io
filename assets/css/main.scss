@@ -99,10 +99,21 @@
 // "Still in a Dream" cover art as the background, white text
 @mixin art-appearance {
   @include theme(#5b282b, #fff, #fff, #ffe2cf, #ffe2cf, #fff, rgba(#fff, 0.35));
-  background-image: url("/still-in-a-dream-bg.jpg");
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+
+  // A fixed layer, because iOS Safari ignores background-attachment: fixed and
+  // scales a body background to the full page height. 100lvh keeps the size
+  // constant when the phone browser toolbars hide.
+  &::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100vh;
+    height: 100lvh;
+    background: url("/still-in-a-dream-bg.jpg") center / cover no-repeat;
+  }
 }
 
 @mixin light-appearance {
