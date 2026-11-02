@@ -159,13 +159,52 @@ hr {
 // Extra space between a bullet and its text. The bullet does not move.
 $bullet-gap: 0em;
 
+// Space between the right edge of a bullet and the text, when $bullet-gap is 0.
+$bullet-offset: 0.5625em;
+
 // Indent of each list level. Nested lists use the same value.
 ul {
   padding-left: 1.2em;
-  list-style-position: outside;
+  list-style: none;
 }
 
-ul > li { padding-left: $bullet-gap; }
+ul > li {
+  padding-left: $bullet-gap;
+  position: relative;
+}
+
+// Draw the bullets here because browsers place native bullets differently.
+// Each `top` puts the center of the bullet 0.67em below the top of the line.
+ul > li::before {
+  content: "";
+  position: absolute;
+  box-sizing: border-box;
+  top: 0.5113em;
+  left: -($bullet-offset + 0.3125em);
+  width: 0.3125em;
+  height: 0.3125em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+:is(ul, ol) ul > li::before {
+  top: 0.48em;
+  left: -($bullet-offset + 0.375em);
+  width: 0.375em;
+  height: 0.375em;
+  border: 1px solid currentColor;
+  background: none;
+}
+
+:is(ul, ol) :is(ul, ol) ul > li::before {
+  top: 0.5113em;
+  left: -($bullet-offset + 0.3125em);
+  width: 0.3125em;
+  height: 0.3125em;
+  border: 0;
+  border-radius: 0;
+  background: currentColor;
+}
 
 // Space between a list and the text above it (a heading, a paragraph, or the
 // parent bullet). :where() keeps specificity low so the search list can reset it.
@@ -445,6 +484,8 @@ nav {
   }
 
   li { margin: 0; padding-left: 0; }
+
+  li::before { content: none; }
 
   a {
     display: block;
