@@ -358,8 +358,31 @@ data
 ##### Replaying on startup
 - With `mmap`, Prometheus loads the full chunks from `chunks_head` and only compresses again the WAL samples of the active chunk
 - Startup steps:
-  - Iterate through all chunks in `chunks_head`
-  - Build map of `series ref -> list of (chunk reference, mint, maxt)` in memory
+	- Iterate through all chunks in `chunks_head`
+	- Build map of `series ref -> list of (chunk reference, mint, maxt)` in memory
+- WAL replay:
+	- `Series` records => attach its chunks from the map
+	- `Samples` records => if `t <= maxt` of last memory-mapped chunk => skip, otherwise if `t > maxt` => encode into the new active chunk
+##### Enhancements
+- Memory savings (15-50%):
+	- Storing a chunk in memory takes 120-200 bytes, depends on compression
+	- With `mmap`, 24 bytes—8 bytes of chunk reference, `mint`, & `maxt`
+	- Not a query optimization => the chunks must be loaded into memory
+- Faster startup (15-30%):
+	- Slow parts of WAL replay are decoding records & rebuilding chunks
+	- (1) cannot be avoided => must read every records to check them
+	- (2) is reduced => skips memory-mapped chunks
+##### Garbage collection
+- Head truncation drops in-memory chunk refs older than T => files stay on disk
+- Max time of each chunk file (largest `maxt` of its chunks) is stored in memory
+	- Live file => updated as chunks are added
+	- Restart => restored while iterating chunks
+- Delete files with max time < T
+	- Never delete the live file
+	- Delete only from the start of the sequence (no gaps)
+	- e.g. `5, 6, 7, 8` with `5` & `7` old => delete only `5` => `6, 7, 8`
+- After truncation, close the live file and start a new one => old chunks might stay in the live file and cannot be deleted
+- Code references: [tsdb/chunks/head_chunks.go](https://github.com/prometheus/prometheus/blob/main/tsdb/chunks/head_chunks.go) & [tsdb/head.go](https://github.com/prometheus/prometheus/blob/main/tsdb/head.go)
 ---
 ### Gorilla: A Fast, Scalable, In-Memory Time Series Database
 #### Constraints
