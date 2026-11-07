@@ -6,7 +6,7 @@ title = 'Fathan Mubina'
   home = ['html', 'json']
 
 [params]
-  favicon = "/favicon.png"
+  favicon = "/favicon-32.png"
   [params.theme_config]
     appearance = "light"
     isShowFooter = false

@@ -13,7 +13,8 @@
   </title>
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="{{ $.Site.Params.favicon | relURL }}" />
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ $.Site.Params.favicon | relURL }}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ "/apple-touch-icon.png" | relURL }}" />
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600&family=Inconsolata:wdth,wght@50..200,200..900&display=swap" rel="stylesheet">
   {{ $options := (dict "outputStyle" "compressed" "enableSourceMap" (not hugo.IsProduction)) }}
   {{ $sass := resources.Get "css/main.scss" }}
