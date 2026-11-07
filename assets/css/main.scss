@@ -141,6 +141,16 @@ body {
   margin: 0;
   min-height: 100%;
   overflow-wrap: break-word;
+  // Only some Work Sans weights are loaded. Do not let the browser fake
+  // bold for a weight that is not loaded (Firefox makes it very heavy).
+  font-synthesis-weight: none;
+}
+
+// Bold uses the loaded 550 face, not 700, so all browsers show the same weight.
+strong, b, th,
+h1, h2, h3, h4, h5, h6,
+.page-title {
+  font-weight: 550;
 }
 
 h1 { font-size: 2rem; }
@@ -451,10 +461,6 @@ nav {
 
 .sep {
   margin: 0 0.4rem;
-}
-
-.page-title {                                
-  font-weight: bold;
 }
 
 #search {
