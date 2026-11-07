@@ -146,11 +146,11 @@ body {
   font-synthesis-weight: none;
 }
 
-// Bold uses the loaded 550 face, not 700, so all browsers show the same weight.
+// Bold uses the loaded 600 face, not 700, so all browsers show the same weight.
 strong, b, th,
 h1, h2, h3, h4, h5, h6,
 .page-title {
-  font-weight: 550;
+  font-weight: 600;
 }
 
 h1 { font-size: 2rem; }
