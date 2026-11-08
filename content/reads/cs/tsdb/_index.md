@@ -369,7 +369,7 @@ data
 	- With `mmap`, 24 bytes—8 bytes of chunk reference, `mint`, & `maxt`
 	- Not a query optimization => the chunks must be loaded into memory
 - Faster startup (15-30%):
-	- Slow parts of WAL replay are decoding records & rebuilding chunks
+	- Slow parts of WAL replay: (1) decoding records, (2) rebuilding chunks
 	- (1) cannot be avoided => must read every records to check them
 	- (2) is reduced => skips memory-mapped chunks
 ##### Garbage collection
