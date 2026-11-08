@@ -255,7 +255,7 @@ __name__="requests_total"   ->   [ 9999, 1000, 1001, 2000000, 2000001, 2000002, 
 - (inverted) index of the Head is in memory
 - Compaction => Head is truncated to remove old chunks => garbage collection removes series that no longer exist in the Head from the index
 - Recovery uses on-disk memory-mapped chunks and WAL to reconstruct the in-memory indexes and chunks
-- Code references: [tsdb/db.go](https://github.com/prometheus/prometheus/blob/master/tsdb/db.go) & [tsdb/head.go](https://github.com/prometheus/prometheus/blob/master/tsdb/head.go)
+- Code references: [`tsdb/db.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/db.go) & [`tsdb/head.go`](https://github.com/prometheus/prometheus/blob/master/tsdb/head.go)
 #### Write-Ahead Logging (WAL)
 - WAL: sequential log of events in DB => records each change before DB applies it
 - [Prometheus's WAL](https://github.com/prometheus/prometheus/blob/main/tsdb/docs/format/wal.md) is used on restarts to restore in-memory DB, i.e. the Head block
@@ -382,7 +382,7 @@ data
 	- Delete only from the start of the sequence (no gaps)
 	- e.g. `5, 6, 7, 8` with `5` & `7` old => delete only `5` => `6, 7, 8`
 - After truncation, close the live file and start a new one => old chunks might stay in the live file and cannot be deleted
-- Code references: [tsdb/chunks/head_chunks.go](https://github.com/prometheus/prometheus/blob/main/tsdb/chunks/head_chunks.go) & [tsdb/head.go](https://github.com/prometheus/prometheus/blob/main/tsdb/head.go)
+- Code references: [`tsdb/chunks/head_chunks.go`](https://github.com/prometheus/prometheus/blob/main/tsdb/chunks/head_chunks.go) & [`tsdb/head.go`](https://github.com/prometheus/prometheus/blob/main/tsdb/head.go)
 ---
 ### Gorilla: A Fast, Scalable, In-Memory Time Series Database
 #### Constraints
