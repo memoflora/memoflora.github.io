@@ -302,7 +302,7 @@ data
 #### Memory Mapping of Head Chunks from Disk
 ##### Format on disk
 - The chunks are stored in the `chunks_head` directory
-```
+```diagram
 data
 ├── chunks_head
 |   ├── 000001
@@ -316,18 +316,18 @@ data
 ```
 - Max size of the file is 128MiB, with 8B header
 ##### The File
-```
+```diagram
 ┌──────────────────────────────┐
 │  magic(0x0130BC91) <4 byte>  │
 ├──────────────────────────────┤
-│    version(1) <1 byte>       │
+│     version(1) <1 byte>      │
 ├──────────────────────────────┤
-│    padding(0) <3 byte>       │
+│     padding(0) <3 byte>      │
 ├──────────────────────────────┤
 │ ┌──────────────────────────┐ │
 │ │         Chunk 1          │ │
 │ ├──────────────────────────┤ │
-│ │          ...             │ │
+│ │           ...            │ │
 │ ├──────────────────────────┤ │
 │ │         Chunk N          │ │
 │ └──────────────────────────┘ │
@@ -337,7 +337,7 @@ data
 - `Chunk Format (version)` tells how to decode the chunks in the file
 - `Padding` allows future header options that might be added
 ##### Chunks
-```
+```diagram
 ┌─────────────────────┬───────────────────────┬───────────────────────┬───────────────────┬───────────────┬──────────────┬────────────────┐
 | series ref <8 byte> | mint <8 byte, uint64> | maxt <8 byte, uint64> | encoding <1 byte> | len <uvarint> | data <bytes> │ CRC32 <4 byte> │
 └─────────────────────┴───────────────────────┴───────────────────────┴───────────────────┴───────────────┴──────────────┴────────────────┘
