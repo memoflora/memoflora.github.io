@@ -52,7 +52,7 @@
     padding: 1rem;
   }
 
-  figcaption, .muted { color: $--secondary-text-color; }
+  figcaption, .muted { color: rgba($--secondary-text-color, 0.6); }
 
   blockquote {
     border: thin solid $--primary-text-color;
@@ -394,8 +394,6 @@ main figure img { cursor: pointer; }
 }
 
 body:has(#lightbox[open]) { overflow: hidden; }
-
-figcaption, .muted { opacity: 0.6; }
 
 figcaption {
   text-align: center;
