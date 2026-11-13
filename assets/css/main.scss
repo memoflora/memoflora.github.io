@@ -134,10 +134,15 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+// Vertical spacing. Both values are the empty space between two lines of
+// text, as a fraction of the font size (0.4 = 0.4 x 16px = 6.4px).
+$line-gap: 0.35;   // between two lines in the same paragraph or bullet
+$item-gap: 0.7;   // between two bullets (must be >= $line-gap)
+
 body {
   font-family: 'Work Sans';
   font-size: 16px;
-  line-height: 1.4;
+  line-height: 1 + $line-gap;
   margin: 0;
   min-height: 100%;
   overflow-wrap: break-word;
@@ -153,17 +158,19 @@ h1, h2, h3, h4, h5, h6,
   font-weight: 600;
 }
 
-h1 { font-size: 2rem; }
+h1, .page-title { font-size: 2rem; }
 h2 { font-size: 1.6rem; }
 h3 { font-size: 1.3rem; }
 h4 { font-size: 1.2rem; }
 h5 { font-size: 1.1rem; }
 h6 { font-size: 1rem; }
-h2, h3, h4, h5, h6 { margin-top: 1.5rem; }p { margin: 1rem 0; }
+h2, h3, h4, h5, h6 { margin-top: 1.5rem; }
+p { margin: 1rem 0; }
 
 :is(h1, h2, h3, h4, h5, h6, p):has(+ ul) { margin-bottom: 0; }
 
-li { margin: 0.4rem 0; }
+// Lines already have $line-gap of space, so the margin adds only the rest.
+li { margin: ($item-gap - $line-gap) * 1em 0; }
 
 a {
   text-decoration: none;
