@@ -52,7 +52,7 @@
     padding: 1rem;
   }
 
-  figcaption { color: $--secondary-text-color; }
+  figcaption, .muted { color: $--secondary-text-color; }
 
   blockquote {
     border: thin solid $--primary-text-color;
@@ -168,6 +168,10 @@ h2, h3, h4, h5, h6 { margin-top: 1.5rem; }
 p { margin: 1rem 0; }
 
 :is(h1, h2, h3, h4, h5, h6, p):has(+ ul) { margin-bottom: 0; }
+
+// Keep a subtitle close to the heading it describes.
+:is(h1, h2, h3, h4, h5, h6):has(+ .muted) { margin-bottom: 0; }
+:is(h1, h2, h3, h4, h5, h6) + .muted { margin-top: 0.5rem; }
 
 // Lines already have $line-gap of space, so the margin adds only the rest.
 li { margin: ($item-gap - $line-gap) * 1em 0; }
@@ -391,9 +395,10 @@ main figure img { cursor: pointer; }
 
 body:has(#lightbox[open]) { overflow: hidden; }
 
+figcaption, .muted { opacity: 0.6; }
+
 figcaption {
   text-align: center;
-  opacity: 0.5;
   margin-top: 0.5rem;
 }
 

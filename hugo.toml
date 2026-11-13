@@ -12,6 +12,8 @@ title = 'Fathan Mubina'
     isShowFooter = false
 
 [markup]
+  [markup.goldmark.parser.attribute]
+    block = true
   [markup.highlight]
     style = "gruvbox"
     noClasses = false
